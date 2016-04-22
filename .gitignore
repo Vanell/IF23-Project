@@ -3,3 +3,7 @@ Arduino-Makefile/
 
 #Ignore Makefile 
 src/Makefile
+
+#Sublime File Project
+if23_project.sublime-project
+if23_project.sublime-workspace
