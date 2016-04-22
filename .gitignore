@@ -1,0 +1,5 @@
+#Ignore Arduino-Makefile folder
+Arduino-Makefile/
+
+#Ignore Makefile 
+src/Makefile
