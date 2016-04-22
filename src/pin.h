@@ -1,12 +1,27 @@
 //Pin Configuration File 
 
 //GPS Pin
-#define 
+#define RX_GPS 2  
+#define TX_GPS 3
 
 //LCD Pin
-
-//Buttons Pin
+#define LCD_RS 4
+#define LCD_Enable 5
+#define LCD_D4 6
+#define LCD_D5 7
+#define LCD_D6 8
+#define LCD_D7 9
 
 //SD Pin
+#define SD_SS 10
+//#define SD_MOSI MOSI
+//#define SD_MISO MISO
+//#define SD_SCK
+
+//Buttons Pin
+#define BP0 16
+#define BP1 15
+#define BPEN 17
 
 //Others
+#define VBAT 0
