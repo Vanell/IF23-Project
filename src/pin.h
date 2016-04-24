@@ -1,8 +1,8 @@
 //Pin Configuration File 
 
 //GPS Pin
-#define RX_GPS     2  
-#define TX_GPS     3
+#define RX_GPS     3
+#define TX_GPS     2
 
 //LCD Pin
 #define LCD_RS     4
