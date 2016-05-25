@@ -26,10 +26,9 @@ LiquidCrystal lcd(4,5,6,7,8,9);
 const long delay_LCD = 750; //Time refresh LCD
 unsigned long previousMillis_LCD = 0;
 
-int SW = 4; // Value of last button press
-
 float Vbat; //Value of batterie
 
+int SW = 4; // Value of last button press
 //Configuration Button bounce
 Bounce debouncerBPEN = Bounce(BPEN,5);
 Bounce debouncerBP0 = Bounce(BP0,5);
@@ -41,21 +40,12 @@ SoftwareSerial ss(RX_GPS, TX_GPS);
 const long delay_GPS = 750; //Time refresh GPS
 unsigned long previousMillis_GPS = 0;
 
-int nb_satGPS = 0 ;
+int nb_satGPS = 0;
 float latGPS = 0;
 float lonGPS = 0;
 int hdopGPS = 0;
 float altGPS = 0;
 float speedGPS = 0;
-
-
-
-// static void smartdelay(unsigned long ms);
-// static void print_float(float val, float invalid, int len, int prec);
-// static void print_int(unsigned long val, unsigned long invalid, int len);
-// static void print_date(TinyGPS &gps);
-//static void print_str(const char *str, int len);
-
 
 float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
 {
