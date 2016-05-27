@@ -46,3 +46,22 @@ Change TinyGPS to TinyGPs ++
 	Prise points itinéraire
 		Temps
 		Distance
+
+### Affichage principale 
+
+	Screen 1
+		Nombre Satellite
+		HDOP
+	Screen 2
+		Altitude 
+		Vitesse
+	Screen 3
+		Latitude
+		Longitude
+	Screen 4
+		Date
+		Time 
+	Si mode prise itinéraire 
+		Distance parcouru
+		Temps de parcoure
+	
