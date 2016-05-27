@@ -9,3 +9,6 @@ src/build-pro328
 #Sublime File Project
 if23_project.sublime-project
 if23_project.sublime-workspace
+
+#Ignore tests code
+

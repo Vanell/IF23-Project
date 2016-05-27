@@ -29,6 +29,7 @@ unsigned long previousMillis_LCD = 0;
 float Vbat; //Value of batterie
 int percentBat;
 float autonomy;
+float vmin = 4.5;
 
 int SW = 4; // Value of last button press
 //Configuration Button bounce
@@ -58,6 +59,18 @@ float truncateNumber(float x, int a){
 	long y;
 	y = pow(10,a)* x;
 	return (float)y/pow(10,a);
+}
+
+float autonomy_bat(float vmin, float v0, float t0){
+	float tmin;
+	float v1;
+	float t1;
+	v1 = mapfloat(analogRead(pinBat),0,1023,0.0,6.5);
+	t1 = millis();
+
+	tmin = (((t1-t0)*(vmin-v0))/(v1-v0))+t0;
+	
+	return t1-tmin;
 }
 
 void setup()
