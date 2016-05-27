@@ -4,10 +4,10 @@ GPS's Project for IF23
 ##Features
 
 Change TinyGPS to TinyGPs ++
-Programme python pour le transfert de fichier 
-Autonomie batterie
-Trouver un format XML
-Refresh le screen si il ya un changement de data
+	Programme python pour le transfert de fichier 
+	Autonomie batterie
+	Trouver un format XML
+	Refresh le screen si il ya un changement de data
 
 ## Menu
 
