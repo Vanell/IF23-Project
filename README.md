@@ -5,19 +5,13 @@ Change TinyGPS to TinyGPs ++
 
 ## Menu
 
-BP1 --> Haut
-
-BP2 --> Bas
-
-BP3 --> Batterie
-
-BP4 --> Menu     --> BP1 --> Haut
-
-					 BP2 --> Bas
-
-					 BP3 --> Select
-					 
-					 BP4 --> Back
+	BP1 --> Haut
+	BP2 --> Bas
+	BP3 --> Batterie
+	BP4 --> Menu     --> BP1 --> Haut
+						 BP2 --> Bas
+						 BP3 --> Select
+						 BP4 --> Back
 ### Menu
 	Prise point
 	Prise itinéraire
