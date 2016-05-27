@@ -27,6 +27,8 @@ const long delay_LCD = 750; //Time refresh LCD
 unsigned long previousMillis_LCD = 0;
 
 float Vbat; //Value of batterie
+int percentBat;
+float autonomy;
 
 int SW = 4; // Value of last button press
 //Configuration Button bounce
@@ -130,18 +132,25 @@ void loop()
 
 			case 4:
 				//SW4
-				Vbat = mapfloat(analogRead(pinBat),0,1023,0.0,6.5);
-				lcd.setCursor(0,1);
+				Vbat = mapfloat(analogRead(pinBat),0,1023,4.0,6.2);
+				percentBat = mapfloat(analogRead(pinBat),0,1023,0,100);
+				autonomy = (6.2 -Vbat)/0.11;
+				///lcd.setCursor(0,1);
 		    	lcd.print("Bat:");
 	    		lcd.print(Vbat);
+	    		lcd.setCursor(0,1);
+	    		lcd.print(percentBat);
+	    		lcd.print("% ");
+	    		lcd.print((int)autonomy);
+	    		lcd.print(" h");
 	    		break;
 		}
 		previousMillis_LCD = millis();
 	}
 
 	//Button
-	if (debouncerBPEN.rose()){
-		if(debouncerBP1.read()){
+	if (debouncerBPEN.rose()){	
+	if(debouncerBP1.read()){
 	  		if(debouncerBP0.read()){//SW4
 	  			SW = 4;
 	  		}else{//SW3

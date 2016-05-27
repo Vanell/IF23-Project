@@ -1,9 +1,5 @@
 //Pin Configuration File 
 
-//#include "Arduino.h"
-
-#ifndef main_h
-#define main_h
 //GPS Pin
 #define RX_GPS     3
 #define TX_GPS     2
