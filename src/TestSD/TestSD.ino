@@ -56,7 +56,7 @@ void setup(){
 	lcd.begin(8,2);	
 
 	//Begin serial computer
-	Serial.begin(115200);
+	Serial.begin(9600);
 
 	//Begin serial GPS
 	//ss.begin(4800);
@@ -77,7 +77,7 @@ void setup(){
     lcd.print("SD done");
     Serial.println("initialization done.");
     
-    if(SD.exists("test.txt"))
+    /*if(SD.exists("test.txt"))
     	SD.remove("test.txt");
 
 
@@ -121,7 +121,7 @@ void setup(){
     // if the file didn't open, print an error:
     	lcd.println("error");
     	Serial.print("Error while opening SD");
-  	}
+  	}*/
     
 
 
@@ -141,7 +141,8 @@ void loop(){
 		    		Serial.print(c);
 		    	}
 		    	myFile.close();
-		    	Serial.println();
+		    	Serial.println("\n");
+
 		    }
 		    else {
 		    	lcd.println("error");

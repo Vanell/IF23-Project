@@ -4,7 +4,7 @@ BOARD_TAG    = pro328
 ARDUINO_LIBS = LiquidCrystal SoftwareSerial Bounce2 TinyGPS SD
 
 #MONITOR_PORT = /dev/ttyUSB0
-MONITOR_BAUDRATE  = 115200
+#MONITOR_BAUDRATE  = 115200
 include /usr/share/Arduino-Makefile/Arduino.mk
 
 
