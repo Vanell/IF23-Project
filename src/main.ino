@@ -12,6 +12,7 @@
 #include "TinyGPS.h"
 #include "LiquidCrystal.h"
 #include "math.h"
+#include <SD.h>
 
 #define RX_GPS     3  
 #define TX_GPS     2
@@ -19,6 +20,8 @@
 #define BPEN       17
 #define BP0        16
 #define BP1        15
+
+#define SD_SS	   10
 
 #define pinBat     0
 
@@ -30,6 +33,13 @@ float Vbat; //Value of batterie
 int percentBat;
 float autonomy;
 float vmin = 4.5;
+
+//SD variables
+File myFile;
+String fileName = "test.txt";
+String command="";
+char c;
+
 
 int SW = 4; // Value of last button press
 //Configuration Button bounce
@@ -73,6 +83,42 @@ float autonomy_bat(float vmin, float v0, float t0){
 	return t1-tmin;
 }
 
+void readFile(String name){
+	char filename[name.length()+1];
+  	name.toCharArray(filename, sizeof(filename));
+	myFile = SD.open(filename);
+	if(myFile){
+		while(myFile.available()){
+			c = ((char)myFile.read());
+			Serial.print(c);
+		}
+		myFile.close();
+		Serial.print("done");
+	}
+	else
+		Serial.print("error while opening SD for reading");
+}
+void writeWP2File(String name, String wpName,float lat,float lon){
+	char filename[name.length()+1];
+  	name.toCharArray(filename, sizeof(filename));
+  	myFile = SD.open(filename,FILE_WRITE);
+  	char data[10];
+  	dtostrf(lat,1,6,data);
+    if (myFile) {
+    	myFile.print(wpName);
+    	myFile.print(" ");
+    	dtostrf(lat,1,6,data);
+    	myFile.print(data);
+    	myFile.print(" ");
+    	dtostrf(lon,1,6,data);
+    	myFile.println(data);
+	    myFile.close();
+  	} 
+  	else {
+    	Serial.print("error while opening SD for writing");
+  	}
+}
+
 void setup()
 {
 	//Input button 
@@ -87,11 +133,20 @@ void setup()
 	lcd.begin(8,2);	
 
 	//Begin serial computer
-	Serial.begin(115200);
+	Serial.begin(57600);
 
 	//Begin serial GPS
 	ss.begin(4800);
-
+	//SD initialisation
+	pinMode(SD_SS,OUTPUT);
+	if (!SD.begin(SD_SS)){
+    	Serial.println("initialization failed!");
+    	return;
+	}
+	Serial.println("initialization done.");
+	lcd.setCursor(2,0);
+	lcd.print("SD OK");
+	delay(200);
 	//LCD message when start
 	lcd.setCursor(2,0);
 	lcd.print("Hello");
@@ -108,6 +163,14 @@ void loop()
 	debouncerBP1.update();
 
 	unsigned long currentMillis = millis();
+	//SD
+	if(Serial.available()){
+		command = Serial.readString();
+		if(command == "send"){
+			readFile(fileName);
+		}
+	}
+	delay(10);
 
 	//LCD 
 	if (currentMillis - previousMillis_LCD >= delay_LCD)
@@ -140,14 +203,18 @@ void loop()
 
 			case 3:
 				//SW3
-				lcd.print("sw3");
+				lcd.setCursor(0,0);
+				lcd.print("Saving");
+				lcd.setCursor(0,1);
+				lcd.print("Waypoint");
+				writeWP2File(fileName,"WP test",latGPS,lonGPS);
 				break;
 
 			case 4:
 				//SW4
-				Vbat = mapfloat(analogRead(pinBat),0,1023,4.0,6.2);
+				Vbat = mapfloat(analogRead(pinBat),0,1023,0,6.2);
 				percentBat = mapfloat(analogRead(pinBat),0,1023,0,100);
-				autonomy = (6.2 -Vbat)/0.11;
+				autonomy = 18-(6.2 -Vbat)/0.11;
 				///lcd.setCursor(0,1);
 		    	lcd.print("Bat:");
 	    		lcd.print(Vbat);
