@@ -13,8 +13,10 @@
 File myFile;
 String fileName = "test.txt";
 String command="";
-String line;
 char c;
+float lat=43.653243;
+float lon=3.333333;
+
 void setup(){
 	
 	//Serial init
@@ -37,23 +39,43 @@ void readFile(String name){
 	myFile = SD.open(filename);
 	if(myFile){
 		while(myFile.available()){
+
 			c = ((char)myFile.read());
 			Serial.print(c);
 		}
 		myFile.close();
+		Serial.println();
 		Serial.print("done");
 	}
 	else
 		Serial.print("error while opening SD for reading");
 }
-void write2File(String name, String data){
+void write2File(String name, char data[]){
 	char filename[name.length()+1];
   	name.toCharArray(filename, sizeof(filename));
-  	char filedata[data.length()+1];
-  	data.toCharArray(filedata, sizeof(filedata));
 	myFile = SD.open(filename,FILE_WRITE);
     if (myFile) {
-    	myFile.println(filedata);
+    	myFile.println(data);
+	    myFile.close();
+  	} 
+  	else {
+    	Serial.print("error while opening SD for writing");
+  	}
+}
+void writeWP2File(String name, String wpName,float lat,float lon){
+	char filename[name.length()+1];
+  	name.toCharArray(filename, sizeof(filename));
+  	myFile = SD.open(filename,FILE_WRITE);
+  	char data[10];
+  	dtostrf(lat,1,6,data);
+    if (myFile) {
+    	myFile.print(wpName);
+    	myFile.print(" ");
+    	dtostrf(lat,1,6,data);
+    	myFile.print(data);
+    	myFile.print(" ");
+    	dtostrf(lon,1,6,data);
+    	myFile.println(data);
 	    myFile.close();
   	} 
   	else {
@@ -72,8 +94,9 @@ void loop(){
 		else{
 			if(command == "remove")
 				SD.remove(name);
-			else
-				write2File(fileName,command);
+			else{
+				writeWP2File(fileName,"test",lat,lon);
+			}
 		}
 	}
 	delay(10);
