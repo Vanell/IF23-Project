@@ -39,11 +39,16 @@ mountpoint = os.popen('ls /dev/ttyU*').read()
 if mountpoint=='':
 	mountpoint = str(os.system('ls /dev/ttyA*'))
 mountpoint =  mountpoint[:-1]
-arduino = serial.Serial(mountpoint, 115200,timeout =1)
+print "Serial connexion to " + mountpoint
 print "initialization..." # Establish the connection on a specific port
 cont = False
+arduino = serial.Serial(mountpoint, 57600,timeout =1)
+i=0
 while arduino.inWaiting()==0:
 	sleep(0.1)
+	if i > 10:
+		break
+	i+=1
 print arduino.read(arduino.inWaiting())
 arduino.write('send')
 fileText =''
@@ -55,9 +60,9 @@ while not(cont):
 		nbBytes = arduino.inWaiting()
 		message = arduino.read(nbBytes)
 		data = message.split()
-		if data[-1] == 'done':
+		if len(data)>1 and data[-1] == 'done':
 			cont = True
-			message = message[:-4]
+			message = message[:-6]
 		print message
 		print 'end of message'
 		fileText = fileText + message
