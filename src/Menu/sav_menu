@@ -1,0 +1,531 @@
+//Main File
+
+//Inculde file
+
+////HomeMade
+//#include "pins.h"
+
+
+////Standard
+#include "Bounce2.h"
+#include "SoftwareSerial.h"
+#include "LiquidCrystal.h"
+#include "math.h"
+
+#define RX_GPS     3  
+#define TX_GPS     2
+
+#define BPEN       17
+#define BP0        16
+#define BP1        15
+
+#define pinBat     0
+
+LiquidCrystal lcd(4,5,6,7,8,9);
+// const long delay_LCD = 500; //Time refresh LCD
+// unsigned long previousMillis_LCD = 0;
+unsigned long lastMillis_BP = 0 ;
+bool state_LCD = true; //true : on ; false : off
+bool changeData_LCD = true;
+
+int SW = 4; // Value of last button press
+//Configuration Button bounce
+Bounce debouncerBPEN = Bounce(BPEN,5);
+Bounce debouncerBP0 = Bounce(BP0,5);
+Bounce debouncerBP1 = Bounce(BP1,5);
+
+
+// Menu 
+int placement_menu = 10;
+	//10 accueil 
+		// 11
+			// Nombre Satellite
+			// HDOP
+		// 12
+			// Altitude 
+			// Vitesse
+		// 13
+			// Latitude
+			// Longitude
+		// 14
+			// Date
+			// Time 
+		// 15 
+			//Tension batterie
+			// pourcentage / temps
+		// 16
+			// Distance parcouru
+			// Temps de parcoure
+	//20 menu
+		// 21 // prise pts
+		// 22 // prise itinéraire
+		// 23 // suivre itinéraire
+		// 24 // optinon
+	// 30 // Prise points
+	// 40 // Prise itinéraire
+	// 50 // Suivre itinéraire
+		// 51 //
+	// 60 // Option
+		// 61 // Mode d'enregristrement
+		// 62 // Prise points itinéraire
+	// 70 // Mode d'enregristrement
+		// 71 // Ecrasé // 0
+		// 72 // Nouveau // 1
+		// 73 // Suite // 2
+	// 80 // Prise points itinéraire
+		// 81 // Temps //
+		// 82 // Distance
+	//90 // Select number
+
+bool mode_itiniraire = false;
+int mode_enregistrement = 2; // à récupere dans l'eeprom
+bool mode_pr_pt_iti = false; // true : time ; false : dist // à récupere dans l'eeprom
+int mode_pr_pt_iti_value = 5; // metre or secondes 
+
+// Define char for screen
+byte char_arrow_left[8] = {
+	0b00000,
+	0b00000,
+	0b11000,
+	0b11100,
+	0b11110,
+	0b11100,
+	0b11000,
+	0b00000
+};
+byte char_arrow_up[8] = {
+	0b00000,
+	0b00000,
+	0b00000,
+	0b00100,
+	0b01110,
+	0b11111,
+	0b11111,
+	0b00000
+};
+
+byte char_arrow_down[8] = {
+	0b00000,
+	0b00000,
+	0b00000,
+	0b11111,
+	0b11111,
+	0b01110,
+	0b00100,
+	0b00000
+};
+
+byte char_select[8] = {
+	0b00000,
+	0b00000,
+	0b00001,
+	0b00011,
+	0b10110,
+	0b11100,
+	0b01000,
+	0b00000
+};
+
+byte char_back[8] = {
+	0b00000,
+	0b00000,
+	0b00001,
+	0b00101,
+	0b01101,
+	0b11111,
+	0b01100,
+	0b00100
+};
+
+float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+float truncateNumber(float x, int a){
+	long y;
+	y = pow(10,a)* x;
+	return (float)y/pow(10,a);
+}
+
+float autonomy_bat(float vmin, float v0, float t0){
+	float tmin;
+	float v1;
+	float t1;
+	v1 = mapfloat(analogRead(pinBat),0,1023,0.0,6.5);
+	t1 = millis();
+
+	tmin = (((t1-t0)*(vmin-v0))/(v1-v0))+t0;
+	
+	return t1-tmin;
+}
+
+void select_menu(){
+	if (SW == 4){
+		if (placement_menu < 20)
+		{
+			placement_menu = 21;
+		}	
+		else if (placement_menu > 20)
+		{
+			switch(placement_menu)
+			{
+				case 21:
+					//Prise point
+					placement_menu = 30;
+					break;
+				case 22 :
+					//Prise itiniraire
+					placement_menu = 40;
+					break;
+				case 23 :
+					//Suivre itinéraire
+					placement_menu = 50;
+					break;
+				case 24 :
+					//Option
+					placement_menu = 60;
+					break;
+				case 60 :
+					//Option
+					placement_menu = 61;
+					break;
+				case 61 :
+					//Option
+					placement_menu = 70;
+					break;	
+				case 62 :
+					//Option
+					placement_menu = 80;
+					break;
+				case 71 :
+					mode_enregistrement = 0;
+					placement_menu = 60;
+					break;
+				case 72 :
+					mode_enregistrement = 1;
+					placement_menu = 60;
+					break;
+				case 73 :
+					mode_enregistrement = 2;
+					placement_menu = 60;
+					break;
+				// case 81 :
+				// 	mode_pr_pt_iti = true;
+				// 	placement_menu = 90;
+				// 	break;
+				// case 82 :
+				// 	mode_pr_pt_iti = false;
+				// 	placement_menu = 90;
+				// 	break;
+				// case 90 :
+				// 	placement_menu = 
+			}
+		}
+	}
+	else if (SW == 3){
+		if (placement_menu < 30)
+		{
+			placement_menu = 15;
+		}	
+		else if (placement_menu >= 30 && placement_menu < 70)
+		{
+			placement_menu = 21;
+		}
+		else if (placement_menu > 70 && placement_menu < 80)
+		{
+			placement_menu = 70;
+		}
+		else if (placement_menu > 80 && placement_menu < 90)
+		{
+			placement_menu = 80;
+		}
+	}
+}
+
+void scroll_menu (int sens){
+	if (placement_menu < 20){
+		placement_menu = placement_menu + sens;
+		
+		if (placement_menu == 10 && mode_itiniraire){
+			placement_menu = 16;
+		}
+		else if (placement_menu == 10 && !mode_itiniraire)
+		{
+			placement_menu = 15;
+		}
+		else if ((placement_menu == 17 && mode_itiniraire )|| (placement_menu == 16 && !mode_itiniraire))
+		{
+			placement_menu = 11;
+		}
+	}else if (placement_menu > 20 && placement_menu < 30) {
+		placement_menu = placement_menu + sens;
+		if (placement_menu == 20 )
+		{
+			placement_menu = 24;
+		}
+		else if (placement_menu == 25) 
+		{
+			placement_menu = 21;
+		}
+	}
+}
+
+void setup()
+{
+	//Input button 
+	pinMode(BPEN,INPUT_PULLUP);
+	pinMode(BP0,INPUT_PULLUP);
+	pinMode(BP1,INPUT_PULLUP);
+
+	//Input batterie
+	pinMode(pinBat,INPUT);
+	
+	//LCD begin
+	lcd.begin(8,2);	
+
+	//Begin serial computer
+	Serial.begin(115200);
+
+	//LCD message when start
+	lcd.createChar(0, char_arrow_up);
+	lcd.createChar(1, char_arrow_down);
+	lcd.createChar(2, char_select);
+	lcd.createChar(3, char_back);
+	lcd.createChar(4, char_arrow_left );
+}
+
+void loop()
+{
+	//Update bouton
+	debouncerBPEN.update();
+	debouncerBP0.update();
+	debouncerBP1.update();
+
+	unsigned long currentMillis = millis();
+
+	//LCD 
+	//if (currentMillis - previousMillis_LCD >= delay_LCD)
+	if (changeData_LCD)
+	{
+		changeData_LCD = false;
+		lcd.clear();		
+		lcd.setCursor(0,0);
+		//Serial.println(placement_menu);
+		switch(placement_menu){
+			case 10:
+				lcd.setCursor(2,0);
+				lcd.print("Hello");
+				lcd.setCursor(3,1);
+				lcd.print("GPS");
+			
+				delay(1000);
+
+				lcd.clear();
+				lcd.setCursor(0,1);
+				lcd.write((uint8_t)0);
+				lcd.setCursor(2,1);
+				lcd.write((uint8_t)1);
+				lcd.setCursor(5,1);
+				lcd.write((uint8_t)2);
+				lcd.setCursor(7,1);
+				lcd.write((uint8_t)3);
+
+				delay(1000);
+				placement_menu = 11;
+				changeData_LCD = true;
+				break;
+			case 11:
+				lcd.print("Nb Sat ");
+				lcd.setCursor(0,1);
+				lcd.print("HDOP ");
+				break;
+			case 12:
+				lcd.print("Altitude");
+				lcd.setCursor(0,1);
+				lcd.print("Vitesse");
+				break;
+			case 13:
+				lcd.print("Lattitude");
+				lcd.setCursor(0,1);
+				lcd.print("Longitude");
+				break;
+			case 14:
+				lcd.print("Date");
+				lcd.setCursor(0,1);
+				lcd.print("Time");
+				break;
+			case 15:
+				lcd.print("Voltage");
+				lcd.setCursor(0,1);
+				lcd.print("Autonomie");
+				break;
+			case 16:
+		    	lcd.print("Dist par");
+	    		lcd.setCursor(0,1);
+	    		lcd.print("Tmps par");
+	    		break;
+			case 21:
+				lcd.write((uint8_t)4);
+				lcd.print("Pr pts");
+	    		lcd.setCursor(1,1);
+	    		lcd.print("Pr iti");
+	    		break;
+			case 22:
+	    		lcd.setCursor(1,0);
+				lcd.print("Pr pts");
+	    		lcd.setCursor(0,1);
+				lcd.write((uint8_t)4);
+	    		lcd.print("Pr iti");
+	    		break;
+			case 23:
+				lcd.write((uint8_t)4);
+				lcd.print("Fol iti");
+	    		lcd.setCursor(1,1);
+	    		lcd.print("Option");
+	    		break;
+			case 24:
+				lcd.setCursor(1,0);
+				lcd.print("Fol iti");
+	    		lcd.setCursor(0,1);
+				lcd.write((uint8_t)4);
+	    		lcd.print("Option");
+	    		break;
+	    	case 30:
+	    		lcd.print("Prise");
+	    		lcd.setCursor(0,1);
+	    		lcd.print("Points");
+	    		break;
+	    	case 40:
+	    		lcd.print("Prise");
+	    		lcd.setCursor(0,1);
+	    		lcd.print("Itinéraire");
+	    		break;
+	    	case 50:
+	    		lcd.print("Suivre");
+	    		lcd.setCursor(0,1);
+	    		lcd.print("Itinéraire");
+	    		break;
+	    	case 60:
+	    		lcd.print("Option");
+	    		break;
+		}
+		// previousMillis_LCD = millis();
+
+	}
+
+	//Button
+	if (debouncerBPEN.rose()){
+	
+		lastMillis_BP = millis();
+		
+		if (!state_LCD)
+		{
+			lcd.display();
+			state_LCD = true;
+		}
+		else
+		{
+			changeData_LCD = true;
+
+			if(debouncerBP1.read()){
+				if(debouncerBP0.read()){//SW4
+					SW = 4;
+					select_menu();
+				}else{//SW3
+					SW = 3;
+					select_menu();
+				}
+			}else{
+				if(debouncerBP0.read()){//SW2
+					SW = 2;
+					scroll_menu(1);
+				}else{//SW1
+					SW = 1;
+					scroll_menu(-1);
+				}
+			} 
+		}
+	}
+	if (currentMillis - lastMillis_BP >= 10000 && state_LCD)//Turn of screen after 5 min 300 000 ms
+	{
+		lcd.noDisplay();
+		state_LCD = false;
+		Serial.println("Turn of lcd");
+	}
+
+}
+
+void MainMenuDisplay()
+{
+    lcd.clear();
+    lcd.setCursor(0,0);
+    switch (mainMenuPage)
+    {
+        case 1:
+            lcd.print("Nb Sat ");
+            lcd.setCursor(0,1);
+            lcd.print("HDOP ");
+            break;
+        case 2:
+            lcd.print("Altitude");
+            lcd.setCursor(0,1);
+            lcd.print("Vitesse");
+            break;
+        case 3:
+            lcd.print("Lattitude");
+            lcd.setCursor(0,1);
+            lcd.print("Longitude");
+            break;
+        case 4:
+            lcd.print("Date");
+            lcd.setCursor(0,1);
+            lcd.print("Time");
+            break;
+        case 5:
+            lcd.print("Voltage");
+            lcd.setCursor(0,1);
+            lcd.print("Autonomie");
+            break;
+        case 6:
+            lcd.print("Dist par");
+            lcd.setCursor(0,1);
+            lcd.print("Tmps par");
+            break;
+    }
+}
+
+void SubMenuDisplay()
+{
+    lcd.clear();
+    lcd.setCursor(0,0);
+    switch (mainMenuPage)
+    {
+        case 1:
+            lcd.write((uint8_t)4);
+            lcd.print("Pr pts");
+            lcd.setCursor(1,1);
+            lcd.print("Pr itin");
+            break;
+        case 2:
+            lcd.setCursor(1,0);
+            lcd.print("Pr pts");
+            lcd.setCursor(0,1);
+            lcd.write((uint8_t)4);
+            lcd.print("Pr itin");
+            break;
+        case 3:
+            lcd.write((uint8_t)4);
+            lcd.print("Fol iti");
+            lcd.setCursor(1,1);
+            lcd.print("Option");
+            break;
+        case 4:
+            lcd.setCursor(1,0);
+            lcd.print("Fol iti");
+            lcd.setCursor(0,1);
+            lcd.write((uint8_t)4);
+            lcd.print("Option");
+            break;
+    }
+}
