@@ -28,7 +28,8 @@
 LiquidCrystal lcd(4,5,6,7,8,9);
 const long delay_LCD = 750; //Time refresh LCD
 unsigned long previousMillis_LCD = 0;
-
+unsigned long currentMillis;
+unsigned long previousMillis_Point =0;
 float Vbat; //Value of batterie
 int percentBat;
 float autonomy;
@@ -98,7 +99,7 @@ void readFile(String name){
 	else
 		Serial.print("error while opening SD for reading");
 }
-void writeWP2File(String name, String wpName,float lat,float lon){
+void writeWP2File(String name, String wpName,float lat,float lon, int nbSat,int dop){
 	char filename[name.length()+1];
   	name.toCharArray(filename, sizeof(filename));
   	myFile = SD.open(filename,FILE_WRITE);
@@ -111,6 +112,8 @@ void writeWP2File(String name, String wpName,float lat,float lon){
     	myFile.print(data);
     	myFile.print(" ");
     	dtostrf(lon,1,6,data);
+    	myFile.print(data);
+    	sprintf(data," %i %i",nbSat,dop);
     	myFile.println(data);
 	    myFile.close();
   	} 
@@ -131,6 +134,8 @@ void setup()
 	
 	//LCD begin
 	lcd.begin(8,2);	
+	lcd.clear();
+	lcd.setCursor(0,0);
 
 	//Begin serial computer
 	Serial.begin(57600);
@@ -140,13 +145,16 @@ void setup()
 	//SD initialisation
 	pinMode(SD_SS,OUTPUT);
 	if (!SD.begin(SD_SS)){
-    	Serial.println("initialization failed!");
+		lcd.setCursor(0,0);
+		lcd.print("SD NO OK");
+   		Serial.println("initialization failed!");
+		delay(5000);	
     	return;
 	}
 	Serial.println("initialization done.");
 	lcd.setCursor(2,0);
 	lcd.print("SD OK");
-	delay(200);
+	delay(500);
 	//LCD message when start
 	lcd.setCursor(2,0);
 	lcd.print("Hello");
@@ -162,22 +170,29 @@ void loop()
 	debouncerBP0.update();
 	debouncerBP1.update();
 
-	unsigned long currentMillis = millis();
+	currentMillis = millis();
 	//SD
-	if(Serial.available()){
-		command = Serial.readString();
-		if(command == "send"){
-			readFile(fileName);
-		}
+	command="";
+	while(Serial.available()>0){
+		c = Serial.read();
+		command=command+c;
 	}
-	delay(10);
-
+	if(command == "send")
+		readFile(fileName);
+	if(command == "remove"){
+		char name[fileName.length()+1];
+  		fileName.toCharArray(name, sizeof(name));
+		SD.remove(name);		
+	}
+		
+	//delay(10);
 	//LCD 
+	lcd.setCursor(0,1);
 	if (currentMillis - previousMillis_LCD >= delay_LCD)
 	{
 		lcd.clear();		
 		lcd.setCursor(0,0);
-
+		
 		switch(SW)
 		{
 			case 1:
@@ -207,7 +222,7 @@ void loop()
 				lcd.print("Saving");
 				lcd.setCursor(0,1);
 				lcd.print("Waypoint");
-				writeWP2File(fileName,"WP test",latGPS,lonGPS);
+				writeWP2File(fileName,"WP test",latGPS,lonGPS,nb_satGPS,hdopGPS);
 				break;
 
 			case 4:
@@ -287,10 +302,22 @@ void loop()
 		// Serial.print(sentences);
 		// Serial.print(" CSUM ERR=");
 		// Serial.println(failed);
-		if (chars == 0)
-			Serial.println("** No characters received from GPS: check wiring **");
+		if(Serial)
+			if (chars == 0)
+				Serial.println("** No characters received from GPS: check wiring **");
 
 		previousMillis_GPS = millis();
 	}
+	if(millis()-previousMillis_Point>60000&&nb_satGPS>3){
+		lcd.setCursor(0,0);
+		lcd.print("Saving");
+		lcd.setCursor(2,1);
+		lcd.print("Point");
+		writeWP2File(fileName,"night test",latGPS,lonGPS,nb_satGPS,hdopGPS);
+		delay(750);
+		previousMillis_Point=millis();
+	}
+	while(millis()-currentMillis<10){
 
+	}
 }
