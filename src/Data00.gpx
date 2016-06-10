@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/0" xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd" version="1.0" creator="gpx.py -- https://github.com/tkrajina/gpxpy">
+<wpt lat="0.000000" lon="0.000000">
+<name>WP</name></wpt>
+<wpt lat="0.000000" lon="0.000000">
+<name>WP</name></wpt>
+<wpt lat="0.000000" lon="0.000000">
+<name>WP</name></wpt>
+<wpt lat="48.296917" lon="4.076481">
+<name>WP</name></wpt>
+<wpt lat="48.296867" lon="4.076474">
+<name>WP</name></wpt>
+<wpt lat="48.296886" lon="4.076449">
+<name>WP</name></wpt>
+<wpt lat="48.296883" lon="4.076439">
+<name>WP</name></wpt>
+<wpt lat="48.296879" lon="4.076432">
+<name>WP</name></wpt>
+<wpt lat="48.296875" lon="4.076424">
+<name>WP</name></wpt>
+<wpt lat="48.296875" lon="4.076419">
+<name>WP</name></wpt>
+<wpt lat="0.000000" lon="0.000000">
+<name>doneWP</name></wpt>
+<wpt lat="0.000000" lon="0.000000">
+<name>WP</name></wpt>
+<wpt lat="0.000000" lon="0.000000">
+<name>WP</name></wpt>
+<wpt lat="48.296917" lon="4.076481">
+<name>WP</name></wpt>
+<wpt lat="48.296867" lon="4.076474">
+<name>WP</name></wpt>
+<wpt lat="48.296886" lon="4.076449">
+<name>WP</name></wpt>
+<wpt lat="48.296883" lon="4.076439">
+<name>WP</name></wpt>
+<wpt lat="48.296879" lon="4.076432">
+<name>WP</name></wpt>
+<wpt lat="48.296875" lon="4.076424">
+<name>WP</name></wpt>
+<wpt lat="48.296875" lon="4.076419">
+<name>WP</name></wpt>
+<trk>
+<trkseg></trkseg></trk></gpx>
