@@ -1,12 +1,8 @@
 //Pin Configuration File 
 
-//#include "Arduino.h"
-
-#ifndef main_h
-#define main_h
 //GPS Pin
-#define RX_GPS     3
 #define TX_GPS     2
+#define RX_GPS     3
 
 //LCD Pin
 #define LCD_RS     4
@@ -28,4 +24,4 @@
 #define BPEN       17
 
 //Others
-#define VBAT       14
+#define pinBat       0

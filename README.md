@@ -65,3 +65,6 @@ Change TinyGPS to TinyGPs ++
 		Distance parcouru
 		Temps de parcoure
 	
+## Projection map 
+Projection Lambert
+Lambert 93

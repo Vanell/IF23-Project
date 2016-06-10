@@ -3,124 +3,402 @@
 //Inculde file
 
 ////HomeMade
-//#include "pins.h"
-
+#include <pin.h>
+#include <GPS.cpp>
 
 ////Standard
 #include "Bounce2.h"
 #include "SoftwareSerial.h"
-#include "TinyGPS.h"
 #include "LiquidCrystal.h"
-#include "math.h"
-#include <SD.h>
+//#include "math.h"
+// #include <SD.h>
 
-#define RX_GPS     3  
-#define TX_GPS     2
-
-#define BPEN       17
-#define BP0        16
-#define BP1        15
-
-#define SD_SS	   10
-
-#define pinBat     0
-
-LiquidCrystal lcd(4,5,6,7,8,9);
+//LCD
+LiquidCrystal lcd(LCD_RS,LCD_Enable,LCD_D4,LCD_D5,LCD_D6,LCD_D7);
 const long delay_LCD = 750; //Time refresh LCD
 unsigned long previousMillis_LCD = 0;
+bool state_LCD = true; //true : on ; false : off
+bool changeData_LCD = true;
+
 unsigned long currentMillis;
 unsigned long previousMillis_Point =0;
+
+unsigned long lastMillis_BP = 0 ;
+
+//Battery
 float Vbat; //Value of batterie
 int percentBat;
 float autonomy;
+float autom;
 float vmin = 4.5;
+float v0;
+unsigned long t0;
 
 //SD variables
-File myFile;
-String fileName = "test.txt";
-String command="";
-char c;
+// File myFile;
+// String fileName = "test.txt";
+// String command="";
+// char c;
 
-
+//Buttons
 int SW = 4; // Value of last button press
 //Configuration Button bounce
 Bounce debouncerBPEN = Bounce(BPEN,5);
 Bounce debouncerBP0 = Bounce(BP0,5);
 Bounce debouncerBP1 = Bounce(BP1,5);
 
-//Configuration GPS
-TinyGPS gps;
+//Menu
+char btn_push;
+
+////Def structure menu
+int const nb_level_menu(4);
+int pos_menu[nb_level_menu];
+int max_screen_lvl[nb_level_menu];
+
+bool mode_itinerary = false;
+
+//GPS
 SoftwareSerial ss(RX_GPS, TX_GPS);
+int const nb_data_GPS(13);
+float data_GPS[nb_data_GPS]; //sat;hdop;lat;long;alt;speed
 const long delay_GPS = 750; //Time refresh GPS
 unsigned long previousMillis_GPS = 0;
 
-int nb_satGPS = 0;
-float latGPS = 0;
-float lonGPS = 0;
-int hdopGPS = 0;
-float altGPS = 0;
-float speedGPS = 0;
+// Define char for screen
+byte char_arrow_left[8] = {0b00000,0b00000,0b11000,0b11100,0b11110,0b11100,0b11000,0b00000};
+byte char_arrow_up[8]   = {0b00000,0b00000,0b00000,0b00100,0b01110,0b11111,0b11111,0b00000};
+byte char_arrow_down[8] = {0b00000,0b00000,0b00000,0b11111,0b11111,0b01110,0b00100,0b00000};
+byte char_select[8]     = {0b00000,0b00000,0b00001,0b00011,0b10110,0b11100,0b01000,0b00000};
+byte char_back[8]       = {0b00000,0b00000,0b00001,0b00101,0b01101,0b11111,0b01100,0b00100};
+
+////FUNCTION////
 
 float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
 {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-float truncateNumber(float x, int a){
-	long y;
-	y = pow(10,a)* x;
-	return (float)y/pow(10,a);
-}
 
-float autonomy_bat(float vmin, float v0, float t0){
-	float tmin;
-	float v1;
-	float t1;
-	v1 = mapfloat(analogRead(pinBat),0,1023,0.0,6.5);
-	t1 = millis();
+//SD function
+// void readFile(String name){
+// 	char filename[name.length()+1];
+//   	name.toCharArray(filename, sizeof(filename));
+// 	myFile = SD.open(filename);
+// 	if(myFile){
+// 		while(myFile.available()){
+// 			c = ((char)myFile.read());
+// 			Serial.print(c);
+// 		}
+// 		myFile.close();
+// 		Serial.print("Done");
+// 	}
+// 	else
+// 		Serial.print("Error while opening SD for reading");
+// }
 
-	tmin = (((t1-t0)*(vmin-v0))/(v1-v0))+t0;
-	
-	return t1-tmin;
-}
+// void writeWP2File(String name, String wpName,float lat,float lon, int nbSat,int dop){
+// 	char filename[name.length()+1];
+//   	name.toCharArray(filename, sizeof(filename));
+//   	myFile = SD.open(filename,FILE_WRITE);
+//   	char data[10];
+//   	dtostrf(lat,1,6,data);
+//     if (myFile) {
+//     	myFile.print(wpName);
+//     	myFile.print(" ");
+//     	dtostrf(lat,1,6,data);
+//     	myFile.print(data);
+//     	myFile.print(" ");
+//     	dtostrf(lon,1,6,data);
+//     	myFile.print(data);
+//     	sprintf(data," %i %i",nbSat,dop);
+//     	myFile.println(data);
+// 	    myFile.close();
+//   	} 
+//   	else {
+//     	Serial.print("Error while opening SD for writing");
+//   	}
+// }
 
-void readFile(String name){
-	char filename[name.length()+1];
-  	name.toCharArray(filename, sizeof(filename));
-	myFile = SD.open(filename);
-	if(myFile){
-		while(myFile.available()){
-			c = ((char)myFile.read());
-			Serial.print(c);
-		}
-		myFile.close();
-		Serial.print("done");
+//Menu function
+char ReadKeypad()
+{
+	char charBPN;
+	//Update bouton
+	debouncerBPEN.update();
+	debouncerBP0.update();
+	debouncerBP1.update();
+	if (debouncerBPEN.rose()){
+
+		// lastMillis_BP = millis();
+		
+		// if (!state_LCD)
+		// {
+		// 	lcd.display();
+		// 	state_LCD = true;
+		// }
+		// else
+		// {
+			changeData_LCD = true;
+			if(debouncerBP1.read()){
+				if(debouncerBP0.read()){//SW4
+					charBPN = 'S';
+				}else{//SW3
+					charBPN = 'B';
+				}
+			}else{
+				if(debouncerBP0.read()){//SW2
+					charBPN = 'D';
+				}else{//SW1
+					charBPN = 'U';
+				}
+			} 
+		// }
 	}
-	else
-		Serial.print("error while opening SD for reading");
+	return charBPN;
 }
-void writeWP2File(String name, String wpName,float lat,float lon, int nbSat,int dop){
-	char filename[name.length()+1];
-  	name.toCharArray(filename, sizeof(filename));
-  	myFile = SD.open(filename,FILE_WRITE);
-  	char data[10];
-  	dtostrf(lat,1,6,data);
-    if (myFile) {
-    	myFile.print(wpName);
-    	myFile.print(" ");
-    	dtostrf(lat,1,6,data);
-    	myFile.print(data);
-    	myFile.print(" ");
-    	dtostrf(lon,1,6,data);
-    	myFile.print(data);
-    	sprintf(data," %i %i",nbSat,dop);
-    	myFile.println(data);
-	    myFile.close();
-  	} 
-  	else {
-    	Serial.print("error while opening SD for writing");
-  	}
+
+void MainMenuBtn()
+{
+	if(btn_push == 'U')
+	{
+		pos_menu[0] ++;
+	}
+	else if(btn_push == 'D')
+	{
+		pos_menu[0] --;   
+	}
+	else if(btn_push == 'S')
+	{
+		//faire une putain de boucle for ...
+		pos_menu[3] = pos_menu[2];
+		pos_menu[2] = pos_menu[1];
+		pos_menu[1] = pos_menu[0];
+		pos_menu[0] = 1 ;
+	}
+	else if(btn_push == 'B')
+	{
+		if (pos_menu[1] > 0)
+		{
+			//faire une putain de boucle for ...
+			pos_menu[0] = pos_menu[1]; 
+			pos_menu[1] = pos_menu[2]; 
+			pos_menu[2] = pos_menu[3]; 
+			pos_menu[3] = 0;
+		}else{
+			pos_menu[0] = 5 ; // Menu batterie 
+		}
+	}
+
+	//Gestion des boucles de menu
+	if (pos_menu[1] <= 0 && pos_menu[0] > max_screen_lvl[0])
+	{
+		pos_menu[0] = 1;
+	}
+	else if (pos_menu[1] <= 0 && pos_menu[0] <= 0 )
+	{
+		pos_menu[0] = max_screen_lvl[0];
+	}
+	
+	else if (pos_menu[1] > 0 && pos_menu[0] > max_screen_lvl[1])
+	{
+		pos_menu[0] = 1;
+	}else if (pos_menu[1] >0 && pos_menu[0] <= 0 )
+	{
+		pos_menu[0] = max_screen_lvl[1];
+	}
+
+	else if (pos_menu[2] > 0 && pos_menu[0] > max_screen_lvl[2])
+	{
+		pos_menu[0] = 1;
+	}else if (pos_menu[2] >0 && pos_menu[0] <= 0 )
+	{
+		pos_menu[0] = max_screen_lvl[2];
+	}
 }
+
+void MainMenuDisplay()
+{
+	lcd.clear();        
+	lcd.setCursor(0,0);
+
+	if (pos_menu[1] <= 0)//Root menu
+	{
+		switch (pos_menu[0])
+		{
+			case 1:
+				lcd.print("Nb Sat ");
+				lcd.print((int)data_GPS[0]);
+				lcd.setCursor(0,1);
+				lcd.print("HDOP ");
+				lcd.print((int)data_GPS[1]);
+				break;
+			case 2:
+				lcd.print(data_GPS[4]);
+				lcd.print(" m");
+				lcd.setCursor(0,1);
+				lcd.print(data_GPS[5]);
+				lcd.print(" km/h");
+				break;
+			case 3:
+				lcd.print(data_GPS[2]);//Lattitude
+				lcd.setCursor(0,1);
+				lcd.print(data_GPS[3]);//Longitude
+				break;
+			case 4:
+				lcd.print("Date");
+				lcd.setCursor(0,1);
+				lcd.print("Time");
+				break;
+			case 5:
+				Vbat = mapfloat(analogRead(pinBat),0,1023,0,6.2);
+				percentBat = mapfloat(analogRead(pinBat),0,1023,0,100);
+				autonomy = 18-(6.2 -Vbat)/0.11;
+				lcd.setCursor(0,1);
+		    	lcd.print("Bat:");
+	    		lcd.print(Vbat);
+	    		lcd.print((int)autonomy);
+	    		lcd.print(percentBat);
+	    		lcd.print("% ");
+	    		lcd.print((int)autonomy);
+	    		lcd.print(" h");
+				break;
+		}
+	}else if (pos_menu[1] > 0 && pos_menu[2] <= 0) // Menu
+	{
+		switch(pos_menu[0])
+		{
+			case 1:
+				lcd.write((uint8_t)4);
+				lcd.print("Pr pts");
+				lcd.setCursor(1,1);
+				lcd.print("Pr iti");
+				break;
+			case 2:
+				lcd.setCursor(1,0);
+				lcd.print("Pr pts");
+				lcd.setCursor(0,1);
+				lcd.write((uint8_t)4);
+
+				if(mode_itinerary)
+				{
+					lcd.print("Stop iti");
+				}else
+				{
+					lcd.print("Pr iti");
+				}
+			break;
+			// case 3:
+			// 	lcd.write((uint8_t)4);
+			// 	lcd.print("Option");
+			// 	break;
+		}
+	}else if ( pos_menu[2] > 0 && pos_menu[3] <= 0) //Menu choose
+	{
+		switch(pos_menu[1])
+		{
+			case 1 : 
+				//Launch functuion take point
+				lcd.print("Point");
+				lcd.setCursor(0,1);
+				lcd.print("Took !");
+				delay(750);
+				//appelle fonction prise point
+				//Facon sale pour le retour en arrière 
+				pos_menu[0] = pos_menu[2];
+				pos_menu[1] = 0;
+				pos_menu[2] = 0;
+				changeData_LCD = true;
+				break;
+
+			case 2 : 
+				//Launch function take itinerary
+				if (mode_itinerary)
+				{
+					lcd.print("Itinerary");
+					lcd.setCursor(0,1);
+					lcd.print("Stop");
+					mode_itinerary = !mode_itinerary;
+					//appelle function itineraire
+				}else
+				{
+					lcd.print("Itinerary");
+					lcd.setCursor(0,1);
+					lcd.print("Progress");
+					mode_itinerary = !mode_itinerary;
+					//appelle function itineraire
+				}
+				delay(1000);
+				//Facon sale pour le retour en arrière 
+				pos_menu[0] = pos_menu[2];
+				pos_menu[1] = 0;
+				pos_menu[2] = 0;
+				changeData_LCD = true;
+				break;
+
+			// case 3 : //Choose option
+			// 	switch (pos_menu[0])
+			// 	{
+			// 		case 1 : 
+			// 		//Option 1
+			// 		lcd.print("Option 1");
+			// 		break;
+			// 		case 2 : 
+			// 		//Option 2
+			// 		lcd.print("Option 2");
+			// 		break;
+			// 		case 3 : 
+			// 		//Option 3
+			// 		lcd.print("Option 3");
+			// 		break;
+
+			// 	}
+			// 	break;
+		}
+	}
+	// else if (pos_menu[3] > 0 && pos_menu[2] == 3)//optioyn 
+	// {
+	// 	switch(pos_menu[1])
+	// 	{
+	// 		case 1 : 
+	// 			//Option 1
+	// 			lcd.print("Opt 1");
+	// 			lcd.setCursor(0,1);
+	// 			lcd.print("Choose");
+	// 			delay(750);
+	// 			break;
+	// 		case 2 : 
+	// 			//Option 2
+	// 			lcd.print("Opt 2");
+	// 			lcd.setCursor(0,1);
+	// 			lcd.print("Choose");
+	// 			delay(750);
+	// 			break;
+	// 		case 3 : 
+	// 			//Option 3
+	// 			lcd.print("Opt 3");
+	// 			lcd.setCursor(0,1);
+	// 			lcd.print("Choose");
+	// 			delay(750);
+	// 			break;
+	// 	}
+	// 	pos_menu[0] = pos_menu[3];
+	// 	pos_menu[1] = 0;
+	// 	pos_menu[2] = 0;
+	// 	pos_menu[3] = 0;
+	// 	changeData_LCD = true;
+	// }
+	else 
+	{
+		lcd.print("Error");
+		lcd.setCursor(0,1);
+		lcd.print("Menu");
+		delay(250);
+	}
+}
+
+
+
+////MAIN////
 
 void setup()
 {
@@ -137,187 +415,109 @@ void setup()
 	lcd.clear();
 	lcd.setCursor(0,0);
 
+	////Create Char for LCD
+	lcd.createChar(0, char_arrow_up);
+	lcd.createChar(1, char_arrow_down);
+	lcd.createChar(2, char_select);
+	lcd.createChar(3, char_back);
+	lcd.createChar(4, char_arrow_left );
+
 	//Begin serial computer
-	Serial.begin(57600);
+	Serial.begin(9600);
 
 	//Begin serial GPS
 	ss.begin(4800);
-	//SD initialisation
-	pinMode(SD_SS,OUTPUT);
-	if (!SD.begin(SD_SS)){
-		lcd.setCursor(0,0);
-		lcd.print("SD NO OK");
-   		Serial.println("initialization failed!");
-		delay(5000);	
-    	return;
+
+	//Init menu 
+	for (int i(0) ; i < nb_level_menu ; i++)
+	{
+		pos_menu[i] = 0;
 	}
-	Serial.println("initialization done.");
-	lcd.setCursor(2,0);
-	lcd.print("SD OK");
-	delay(500);
+	pos_menu[0] = 1;
+	max_screen_lvl[0] = 5;//Root menu
+	max_screen_lvl[1] = 2;// Menu
+	//max_screen_lvl[2] = 3;//Option
+
+	//SD initialisation
+	// pinMode(SD_SS,OUTPUT);
+
+	// //--> pour check l'init de la SD vaut mieux pas faire un while ?????
+	// if (!SD.begin(SD_SS)){
+	// 	lcd.setCursor(0,0);
+	// 	lcd.print("SD NO OK");
+ //   		Serial.println("initialization failed!");
+	// 	delay(5000);	
+ //    	return;
+	// }
+	// Serial.println("initialization done.");
+	// lcd.setCursor(2,0);
+	// lcd.print("SD OK");
+	// delay(500);
+
 	//LCD message when start
 	lcd.setCursor(2,0);
 	lcd.print("Hello");
 	lcd.setCursor(3,1);
 	lcd.print("GPS");
 
+	delay(750);
+
+	lcd.clear();
+	lcd.setCursor(0,1);
+	lcd.write((uint8_t)0);
+	lcd.setCursor(2,1);
+	lcd.write((uint8_t)1);
+	lcd.setCursor(5,1);
+	lcd.write((uint8_t)2);
+	lcd.setCursor(7,1);
+	lcd.write((uint8_t)3);
+
+	delay(750);
+
 }
 
 void loop()
 {
-	//Update bouton
-	debouncerBPEN.update();
-	debouncerBP0.update();
-	debouncerBP1.update();
+	currentMillis = millis();//Get time at the begin
 
-	currentMillis = millis();
-	//SD
-	command="";
-	while(Serial.available()>0){
-		c = Serial.read();
-		command=command+c;
-	}
-	if(command == "send")
-		readFile(fileName);
-	if(command == "remove"){
-		char name[fileName.length()+1];
-  		fileName.toCharArray(name, sizeof(name));
-		SD.remove(name);		
-	}
-		
-	//delay(10);
-	//LCD 
-	lcd.setCursor(0,1);
-	if (currentMillis - previousMillis_LCD >= delay_LCD)
+	btn_push = ReadKeypad();
+	MainMenuBtn();
+
+	if (changeData_LCD || ( pos_menu[1]<= 0 && newDataGPS) ) 
 	{
-		lcd.clear();		
-		lcd.setCursor(0,0);
+		changeData_LCD = false;
+		MainMenuDisplay();
+	}
+
+	//SD
+	// command="";
+	// while(Serial.available()>0){
+	// 	c = Serial.read();
+	// 	command=command+c;
+	// }
+	// if(command == "send")
+	// 	readFile(fileName);
+	// if(command == "remove"){
+	// 	char name[fileName.length()+1];
+	// 	fileName.toCharArray(name, sizeof(name));
+	// 	SD.remove(name);		
+	// }
 		
-		switch(SW)
-		{
-			case 1:
-				//SW1
-				// lcd.print("sw1");
-				lcd.print("Nb Sat ");
-				lcd.print(nb_satGPS);
-				lcd.setCursor(0,1);
-				lcd.print("HDOP ");
-				lcd.print(hdopGPS);
-				break;
-
-			case 2:
-				//SW2
-				// lcd.print("sw2");
-
-				lcd.print(altGPS);
-				lcd.print(" m");
-				lcd.setCursor(0,1);
-				lcd.print(speedGPS);
-				lcd.print(" km/h");
-				break;
-
-			case 3:
-				//SW3
-				lcd.setCursor(0,0);
-				lcd.print("Saving");
-				lcd.setCursor(0,1);
-				lcd.print("Waypoint");
-				writeWP2File(fileName,"WP test",latGPS,lonGPS,nb_satGPS,hdopGPS);
-				break;
-
-			case 4:
-				//SW4
-				Vbat = mapfloat(analogRead(pinBat),0,1023,0,6.2);
-				percentBat = mapfloat(analogRead(pinBat),0,1023,0,100);
-				autonomy = 18-(6.2 -Vbat)/0.11;
-				///lcd.setCursor(0,1);
-		    	lcd.print("Bat:");
-	    		lcd.print(Vbat);
-	    		lcd.setCursor(0,1);
-	    		lcd.print(percentBat);
-	    		lcd.print("% ");
-	    		lcd.print((int)autonomy);
-	    		lcd.print(" h");
-	    		break;
-		}
-		previousMillis_LCD = millis();
-	}
-
-	//Button
-	if (debouncerBPEN.rose()){	
-	if(debouncerBP1.read()){
-	  		if(debouncerBP0.read()){//SW4
-	  			SW = 4;
-	  		}else{//SW3
-	    		SW = 3;}
-		}else{
-		  	if(debouncerBP0.read()){//SW2
-		    	SW = 2;
-		  	}else{//SW1
-		    	SW = 1;}
-		} 
-	}
 
 	//GPS
-	bool newData = false;
-	unsigned long chars;
-	unsigned short sentences, failed;
+	data_GPS = get_data_GPS(ss);
 
-	// For one second we parse GPS data and report some key values
-	while(ss.available()){
-  		char c = ss.read();
-		if (gps.encode(c))
-			newData = true;
-	}
+	//Quand je decommentte cette partie il ne veut plus compliler pour moi 
+	// if( millis()-previousMillis_Point > 60000 && nb_satGPS>3 ){
+	// 	lcd.setCursor(0,0);
+	// 	lcd.print("Saving");
+	// 	lcd.setCursor(2,1);
+	// 	lcd.print("Point");
+	// 	writeWP2File(fileName,"night test",latGPS,lonGPS,nb_satGPS,hdopGPS);
+	// 	delay(750);
+	// 	previousMillis_Point=millis();
+	// }
 
-	if (currentMillis - previousMillis_GPS >= delay_GPS and newData){
-		float flat, flon;
-		unsigned long age;
-		gps.f_get_position(&flat, &flon, &age);
-
-		//Lattidue
-		if (flat != TinyGPS::GPS_INVALID_F_ANGLE)
-			latGPS = truncateNumber(flat,6);
-		//Longitude
-		if (flon != TinyGPS::GPS_INVALID_F_ANGLE)
-			lonGPS = truncateNumber(flon,6);
-
-		//Number statellites
-		if(gps.satellites() != TinyGPS::GPS_INVALID_SATELLITES)
-			nb_satGPS = gps.satellites();
-		//Precision HDOP
-		if(gps.hdop() != TinyGPS::GPS_INVALID_HDOP)
-			hdopGPS = gps.hdop();
-		//GPS altitude
-		if(gps.f_altitude() != TinyGPS::GPS_INVALID_F_ALTITUDE)
-			altGPS = truncateNumber(gps.f_altitude(),2);
-		//GPS Speed km/h
-		if(gps.f_speed_kmph() != TinyGPS::GPS_INVALID_F_SPEED)
-			speedGPS = truncateNumber(gps.f_speed_kmph(),2);
-
-		gps.stats(&chars, &sentences, &failed);
-		// Serial.print(" CHARS=");
-		// Serial.print(chars);
-		// Serial.print(" SENTENCES=");
-		// Serial.print(sentences);
-		// Serial.print(" CSUM ERR=");
-		// Serial.println(failed);
-		if(Serial)
-			if (chars == 0)
-				Serial.println("** No characters received from GPS: check wiring **");
-
-		previousMillis_GPS = millis();
-	}
-	if(millis()-previousMillis_Point>60000&&nb_satGPS>3){
-		lcd.setCursor(0,0);
-		lcd.print("Saving");
-		lcd.setCursor(2,1);
-		lcd.print("Point");
-		writeWP2File(fileName,"night test",latGPS,lonGPS,nb_satGPS,hdopGPS);
-		delay(750);
-		previousMillis_Point=millis();
-	}
-	while(millis()-currentMillis<10){
-
-	}
+	while(millis()-currentMillis<10){}
 }
+ 
