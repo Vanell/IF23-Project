@@ -3,13 +3,14 @@
 #include "TinyGPS.h"
 #include "LiquidCrystal.h"
 #include "math.h"
+#include "LiquidCrystal.h"
 #include <SD.h>
 #define RX_GPS     3
 #define TX_GPS     2
 
 #define SD_SS	   10
 
-
+LiquidCrystal lcd(4,5,6,7,8,9);
 File myFile;
 String fileName = "test.txt";
 String command="";
@@ -18,7 +19,9 @@ float lat=43.653243;
 float lon=3.333333;
 
 void setup(){
-	
+	lcd.begin(8,2);
+	lcd.setCursor(0,0);
+	lcd.print("started");
 	//Serial init
 	Serial.begin(57600);
 	//SD init

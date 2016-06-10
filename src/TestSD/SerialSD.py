@@ -70,6 +70,8 @@ while not(cont):
 		if len(data)>1 and data[-1] == 'done':
 			cont = True
 			message = message[:-6]
+		elif data=='done':
+			cont = True
 		print message
 		print 'end of message'
 		fileText = fileText + message
