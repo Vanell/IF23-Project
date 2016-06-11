@@ -1,20 +1,25 @@
 //Main File
 
 //Inculde file
-////HomeMade
-#include <pin.h>
-#include <GPS.cpp>
-#include <Affichage.cpp>
+
 
 
 ////Standard
 #include "Bounce2.h"
 #include "SoftwareSerial.h"
+#include "Arduino.h"
 //#include "LiquidCrystal.h"
 //#include "math.h"
 // #include <SD.h>
+//#define byte uint8_t
+////HomeMade
 
 
+
+#include <pin.h>
+#include <GPS.cpp>
+#include <SDGPS.cpp>
+#include <Affichage.cpp>
 
 
 
@@ -64,12 +69,12 @@ unsigned long previousMillis_Point =0;
 
 // bool mode_itinerary = false;
 
-//GPS
-SoftwareSerial ss(RX_GPS, TX_GPS);
-int const nb_data_GPS(13);
-float data_GPS[nb_data_GPS]; //sat;hdop;lat;long;alt;speed
-const long delay_GPS = 750; //Time refresh GPS
-unsigned long previousMillis_GPS = 0;
+// //GPS
+// SoftwareSerial ss(RX_GPS, TX_GPS);
+// int const nb_data_GPS(13);
+// float data_GPS[nb_data_GPS]; //sat;hdop;lat;long;alt;speed
+// const long delay_GPS = 750; //Time refresh GPS
+// unsigned long previousMillis_GPS = 0;
 
 // // Define char for screen
 // byte char_arrow_left[8] = {0b00000,0b00000,0b11000,0b11100,0b11110,0b11100,0b11000,0b00000};
@@ -78,12 +83,12 @@ unsigned long previousMillis_GPS = 0;
 // byte char_select[8]     = {0b00000,0b00000,0b00001,0b00011,0b10110,0b11100,0b01000,0b00000};
 // byte char_back[8]       = {0b00000,0b00000,0b00001,0b00101,0b01101,0b11111,0b01100,0b00100};
 
-////FUNCTION////
+// ////FUNCTION////
 
-float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
-{
-  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
+// float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
+// {
+//   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+// }
 
 
 //SD function
@@ -446,20 +451,20 @@ void setup()
 	//max_screen_lvl[2] = 3;//Option
 
 	//SD initialisation
-	// pinMode(SD_SS,OUTPUT);
+	pinMode(SD_SS,OUTPUT);
 
-	// //--> pour check l'init de la SD vaut mieux pas faire un while ?????
-	// if (!SD.begin(SD_SS)){
-	// 	lcd.setCursor(0,0);
-	// 	lcd.print("SD NO OK");
- //   		Serial.println("initialization failed!");
-	// 	delay(5000);	
- //    	return;
-	// }
-	// Serial.println("initialization done.");
-	// lcd.setCursor(2,0);
-	// lcd.print("SD OK");
-	// delay(500);
+	//--> pour check l'init de la SD vaut mieux pas faire un while ?????
+	if (!SD.begin(SD_SS)){
+		lcd.setCursor(0,0);
+		lcd.print("SD NO OK");
+   		Serial.println("initialization failed!");
+		delay(5000);	
+    	return;
+	}
+	Serial.println("initialization done.");
+	lcd.setCursor(2,0);
+	lcd.print("SD OK");
+	delay(500);
 
 	//LCD message when start
 	lcd.setCursor(2,0);
@@ -493,10 +498,10 @@ void loop()
 	if (changeData_LCD || ( pos_menu[1]<= 0 && newDataGPS) ) 
 	{
 		changeData_LCD = false;
-		MainMenuDisplay();
+		MainMenuDisplay(data_GPS);
 	}
 
-	//SD
+	//Serial
 	// command="";
 	// while(Serial.available()>0){
 	// 	c = Serial.read();
@@ -512,7 +517,8 @@ void loop()
 		
 
 	//GPS
-	data_GPS = get_data_GPS(ss);
+	//data_GPS = get_data_GPS(ss,data_GPS);
+	get_data_GPS(ss,data_GPS);
 
 	//Quand je decommentte cette partie il ne veut plus compliler pour moi 
 	// if( millis()-previousMillis_Point > 60000 && nb_satGPS>3 ){
