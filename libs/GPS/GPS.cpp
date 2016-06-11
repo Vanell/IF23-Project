@@ -38,7 +38,7 @@ float truncateNumber(float x, int a){
 }
 
 //GPS function
-float* get_data_GPS(SoftwareSerial ss, float *data_GPS)
+float* get_data_GPS(SoftwareSerial ss, float data_GPS[])
 {
 	newDataGPS = false;
 	float flat, flon;
