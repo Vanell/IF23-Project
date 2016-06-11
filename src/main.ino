@@ -8,38 +8,24 @@
 #include "Bounce2.h"
 #include "SoftwareSerial.h"
 #include "Arduino.h"
-//#include "LiquidCrystal.h"
-//#include "math.h"
-// #include <SD.h>
-//#define byte uint8_t
+
 ////HomeMade
 
 
 
 #include <pin.h>
 #include <GPS.cpp>
-//#include <SDGPS.cpp>
+#include <SDGPS.cpp>
 #include <Affichage.cpp>
 
 
 
 
-//LCD
-//LiquidCrystal lcd(LCD_RS,LCD_Enable,LCD_D4,LCD_D5,LCD_D6,LCD_D7);
-// const long delay_LCD = 750; //Time refresh LCD
-// unsigned long previousMillis_LCD = 0;
-// bool state_LCD = true; //true : on ; false : off
-// bool changeData_LCD = true;
-
 unsigned long currentMillis;
 unsigned long previousMillis_Point =0;
 int const nb_data_GPS = 13;
 float data_GPS_Loop[13];
-
-//unsigned long lastMillis_BP = 0 ;
-
-
-
+String command;
 
 
 
@@ -87,23 +73,23 @@ void setup()
 	//data GPS initialisation
 	for(int i=0;i<nb_data_GPS;i++){
 		data_GPS_Loop[i]=0;
-		Serial.println(data_GPS_Loop[i]);
+		//Serial.println(data_GPS_Loop[i]);
 	}
 	//SD initialisation
-	//pinMode(SD_SS,OUTPUT);
+	pinMode(SD_SS,OUTPUT);
 
 	//--> pour check l'init de la SD vaut mieux pas faire un while ?????
-	// if (!SD.begin(SD_SS)){
-	// 	lcd.setCursor(0,0);
-	// 	lcd.print("SD NO OK");
- //   		Serial.println("initialization failed!");
-	// 	delay(5000);	
- //    	return;
-	// }
-	// Serial.println("initialization done.");
-	// lcd.setCursor(2,0);
-	// lcd.print("SD OK");
-	// delay(500);
+	if (!SD.begin(SD_SS)){
+		lcd.setCursor(0,0);
+		lcd.print("SD NO OK");
+   		Serial.println("initialization failed!");
+		delay(5000);	
+    	return;
+	}
+	Serial.println("initialization done.");
+	lcd.setCursor(2,0);
+	lcd.print("SD OK");
+	delay(500);
 
 	//LCD message when start
 	lcd.setCursor(2,0);
@@ -124,6 +110,7 @@ void setup()
 	lcd.write((uint8_t)3);
 
 	delay(750);
+	Serial.println("initialization done");
 
 }
 
@@ -134,7 +121,7 @@ void loop()
 	btn_push = ReadKeypad();
 	MainMenuBtn();
 
-	if (millis()-previousMillis_LCD>delay_LCD || ( pos_menu[1]<= 0 && newDataGPS) ) 
+	if (changeData_LCD || ( pos_menu[1]<= 0 && newData) ) 
 	{
 		changeData_LCD = false;
 		MainMenuDisplay(data_GPS_Loop);
@@ -143,35 +130,43 @@ void loop()
 	//Serial
 	
 
-	// command="";
-	// while(Serial.available()>0){
-	// 	c = Serial.read();
-	// 	command=command+c;
-	// }
-	// if(command == "send")
-	// 	readFile(fileName);
-	// if(command == "remove"){
-	// 	char name[fileName.length()+1];
-	// 	fileName.toCharArray(name, sizeof(name));
-	// 	SD.remove(name);		
-	// }
+	command="";
+	while(Serial.available()>0){
+		Serial.println("someting in buffer");
+		c = Serial.read();
+		command=command+c;
+	}
+	if(command == "send")
+		readFile(fileName);
+	if(command == "remove"){
+		char name[fileName.length()+1];
+		fileName.toCharArray(name, sizeof(name));
+		SD.remove(name);		
+	}
 		
 
 	//GPS
-	//data_GPS = get_data_GPS(ss,data_GPS);
-	get_data_GPS(ss,data_GPS_Loop);
+	
+	get_data_GPS(data_GPS_Loop);
+	updateGPSVar(data_GPS_Loop);
 
 	//Quand je decommentte cette partie il ne veut plus compliler pour moi 
-	// if( millis()-previousMillis_Point > 60000 && nb_satGPS>3 ){
-	// 	lcd.setCursor(0,0);
-	// 	lcd.print("Saving");
-	// 	lcd.setCursor(2,1);
-	// 	lcd.print("Point");
-	// 	writeWP2File(fileName,"night test",latGPS,lonGPS,nb_satGPS,hdopGPS);
-	// 	delay(750);
-	// 	previousMillis_Point=millis();
-	// }
+	if( millis()-previousMillis_Point > 10000 && nb_satGPS>3 ){
+		lcd.setCursor(0,0);
+		lcd.print("Saving");
+		lcd.setCursor(2,1);
+		lcd.print("Point");
+		Serial.println("Before writing...");
+		//writeWP2File("test.txt","Another cat beef");
+		Serial.println("After writing!");
+		delay(750);
+		previousMillis_Point=millis();
+	}
+
+
+
 
 	while(millis()-currentMillis<10){}
 }
- 
+
+
