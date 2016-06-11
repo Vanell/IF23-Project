@@ -3,6 +3,7 @@
 #include "Bounce2.h"
 #include <pin.h>
 #include <Affichage.h>
+//#include <SDGPS.cpp>
 
 LiquidCrystal lcd(LCD_RS,LCD_Enable,LCD_D4,LCD_D5,LCD_D6,LCD_D7);
 
@@ -10,6 +11,21 @@ LiquidCrystal lcd(LCD_RS,LCD_Enable,LCD_D4,LCD_D5,LCD_D6,LCD_D7);
 Bounce debouncerBPEN = Bounce(BPEN,5);
 Bounce debouncerBP0 = Bounce(BP0,5);
 Bounce debouncerBP1 = Bounce(BP1,5);
+
+//Content of dataGPS:
+// 0 NBSAT
+// 1 HDOP
+// 2 LATITUDE
+// 3 LONGITUDE
+// 4 AGE
+// 5 YEAR
+// 6 MONTH
+// 7 DAY
+// 8 HOURS
+// 9 MINUTES
+// 10 SECONDS
+// 11 ALTITUDE
+// 12 SPEED
 
 
 ////FUNCTION////
@@ -43,9 +59,9 @@ char ReadKeypad()
 			changeData_LCD = true;
 			if(debouncerBP1.read()){
 				if(debouncerBP0.read()){//SW4
-					charBPN = 'S';
-				}else{//SW3
 					charBPN = 'B';
+				}else{//SW3
+					charBPN = 'S';
 				}
 			}else{
 				if(debouncerBP0.read()){//SW2
@@ -205,6 +221,7 @@ void MainMenuDisplay(float *data_GPS)
 				lcd.print("Took !");
 				delay(750);
 				//appelle fonction prise point
+				//writeWP2File("test.txt", "newWPTest");
 				//Facon sale pour le retour en arrière 
 				pos_menu[0] = pos_menu[2];
 				pos_menu[1] = 0;
