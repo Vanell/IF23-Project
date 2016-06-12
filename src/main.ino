@@ -5,10 +5,11 @@
 
 
 ////Standard
-#include "Bounce2.h"
-#include "SoftwareSerial.h"
-#include "Arduino.h"
-
+//#include "Bounce2.h"
+//#include "SoftwareSerial.h"
+//#include "Arduino.h"
+#include <SD.h>
+#include <avr/pgmspace.h>
 ////HomeMade
 
 
@@ -21,11 +22,13 @@
 
 
 
-unsigned long currentMillis;
-unsigned long previousMillis_Point =0;
+//unsigned long currentMillis;
+unsigned long previousMillis_Iti =0;
+unsigned long previousMillis_LCD = millis();
 int const nb_data_GPS = 13;
 float data_GPS_Loop[13];
 String command;
+
 
 
 
@@ -47,11 +50,11 @@ void setup()
 	lcd.setCursor(0,0);
 
 	////Create Char for LCD
-	lcd.createChar(0, char_arrow_up);
-	lcd.createChar(1, char_arrow_down);
-	lcd.createChar(2, char_select);
-	lcd.createChar(3, char_back);
-	lcd.createChar(4, char_arrow_left );
+	// lcd.createChar(0, char_arrow_up);
+	// lcd.createChar(1, char_arrow_down);
+	// lcd.createChar(2, char_select);
+	// lcd.createChar(3, char_back);
+	// lcd.createChar(4, char_arrow_left );
 
 	//Begin serial computer
 	Serial.begin(9600);
@@ -70,7 +73,6 @@ void setup()
 	max_screen_lvl[1] = 2;// Menu
 	//max_screen_lvl[2] = 3;//Option
 
-	//data GPS initialisation
 	for(int i=0;i<nb_data_GPS;i++){
 		data_GPS_Loop[i]=0;
 		//Serial.println(data_GPS_Loop[i]);
@@ -81,92 +83,88 @@ void setup()
 	//--> pour check l'init de la SD vaut mieux pas faire un while ?????
 	if (!SD.begin(SD_SS)){
 		lcd.setCursor(0,0);
-		lcd.print("SD NO OK");
-   		Serial.println("initialization failed!");
+		lcd.print(F("SD NO OK"));
+   		Serial.println("initfailed!");
 		delay(5000);	
     	return;
 	}
-	Serial.println("initialization done.");
+	Serial.println("SD Init Ok");
 	lcd.setCursor(2,0);
-	lcd.print("SD OK");
+	lcd.print(F("SD OK"));
+	//testSD();
+	Serial.println("Itinarary:");
+	readFile("itinary.txt");
+	Serial.println("Waypoint:");
+	readFile("waypoint.txt");
+	//Serial.println("opening sd for writing");
+	//writeWP2File("test.txt","Yeah nigga",66.66666,6.66666);
 	delay(500);
 
 	//LCD message when start
 	lcd.setCursor(2,0);
-	lcd.print("Hello");
+	lcd.print(F("Hello"));
 	lcd.setCursor(3,1);
-	lcd.print("GPS");
+	lcd.print(F("GPS"));
 
 	delay(750);
 
 	lcd.clear();
 	lcd.setCursor(0,1);
-	lcd.write((uint8_t)0);
-	lcd.setCursor(2,1);
-	lcd.write((uint8_t)1);
-	lcd.setCursor(5,1);
-	lcd.write((uint8_t)2);
-	lcd.setCursor(7,1);
-	lcd.write((uint8_t)3);
+	// lcd.write((uint8_t)0);
+	// lcd.setCursor(2,1);
+	// lcd.write((uint8_t)1);
+	// lcd.setCursor(5,1);
+	// lcd.write((uint8_t)2);
+	// lcd.setCursor(7,1);
+	// lcd.write((uint8_t)3);
 
 	delay(750);
-	Serial.println("initialization done");
+	Serial.println("initdone.");
 
 }
 
 void loop()
 {
-	currentMillis = millis();//Get time at the begin
-
+	//currentMillis = millis();//Get time at the begin
 	btn_push = ReadKeypad();
 	MainMenuBtn();
 
-	if (changeData_LCD || ( pos_menu[1]<= 0 && newData) ) 
+	if (changeData_LCD || ( pos_menu[1]<= 0 && newData))
 	{
 		changeData_LCD = false;
 		MainMenuDisplay(data_GPS_Loop);
+		previousMillis_LCD=millis();
 	}
 
 	//Serial
 	
 
-	command="";
-	while(Serial.available()>0){
-		Serial.println("someting in buffer");
-		c = Serial.read();
-		command=command+c;
-	}
-	if(command == "send")
-		readFile(fileName);
-	if(command == "remove"){
-		char name[fileName.length()+1];
-		fileName.toCharArray(name, sizeof(name));
-		SD.remove(name);		
-	}
+	// command="";
+	// while(Serial.available()>0){
+	// 	Serial.println("someting in buffer");
+	// 	command=command+Serial.read();;
+	// }
+	// if(command == "send")
+	// 	readFile("test.txt");
+	// if(command == "remove"){
+	// 	//char name[fileName.length()+1];
+	// 	//fileName.toCharArray(name, sizeof(name));
+	// 	SD.remove("test.txt");		
+	// }
 		
 
 	//GPS
 	
 	get_data_GPS(data_GPS_Loop);
-	updateGPSVar(data_GPS_Loop);
-
-	//Quand je decommentte cette partie il ne veut plus compliler pour moi 
-	if( millis()-previousMillis_Point > 10000 && nb_satGPS>3 ){
-		lcd.setCursor(0,0);
-		lcd.print("Saving");
-		lcd.setCursor(2,1);
-		lcd.print("Point");
-		Serial.println("Before writing...");
-		//writeWP2File("test.txt","Another cat beef");
-		Serial.println("After writing!");
-		delay(750);
-		previousMillis_Point=millis();
+	if(takePoint){
+		writeWP2File("waypoint.txt", "testWayPoint",data_GPS_Loop);
+		Serial.println("Return from writing function");
+		takePoint=false;
+	}
+	if(mode_itinerary && millis()-previousMillis_Iti>pgm_read_byte(&delay_GPS)){
+		writeWP2File("itinary.txt","test iti",data_GPS_Loop);
 	}
 
-
-
-
-	while(millis()-currentMillis<10){}
 }
 
 
