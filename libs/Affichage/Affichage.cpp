@@ -4,9 +4,10 @@
 #include <pin.h>
 #include <Affichage.h>
 //#include <SDGPS.cpp>
+//#include <SDGPS.cpp>
 
-LiquidCrystal lcd(LCD_RS,LCD_Enable,LCD_D4,LCD_D5,LCD_D6,LCD_D7);
-
+//LiquidCrystal lcd(LCD_RS,LCD_Enable,LCD_D4,LCD_D5,LCD_D6,LCD_D7);
+LiquidCrystal lcd(4,5,6,7,8,9);
 
 Bounce debouncerBPEN = Bounce(BPEN,5);
 Bounce debouncerBP0 = Bounce(BP0,5);
@@ -134,28 +135,32 @@ void MainMenuBtn()
 	}
 }
 
-void MainMenuDisplay(float *data_GPS)
+void MainMenuDisplay(float data_GPS[])
 {
 	lcd.clear();        
 	lcd.setCursor(0,0);
+	//Battery
+	float Vbat; //Value of batterie
+	int percentBat;
+	float autonomy;
 
 	if (pos_menu[1] <= 0)//Root menu
 	{
 		switch (pos_menu[0])
 		{
 			case 1:
-				lcd.print("Nb Sat ");
+				lcd.print(F("NbSat "));
 				lcd.print((int)data_GPS[0]);
 				lcd.setCursor(0,1);
-				lcd.print("HDOP ");
+				lcd.print(F("HDOP "));
 				lcd.print((int)data_GPS[1]);
 				break;
 			case 2:
-				lcd.print(data_GPS[4]);
-				lcd.print(" m");
+				lcd.print(data_GPS[11]);
+				lcd.print(F(" m"));
 				lcd.setCursor(0,1);
-				lcd.print(data_GPS[5]);
-				lcd.print(" km/h");
+				lcd.print(data_GPS[12]);
+				lcd.print(F(" km/h"));
 				break;
 			case 3:
 				lcd.print(data_GPS[2]);//Lattitude
@@ -163,22 +168,30 @@ void MainMenuDisplay(float *data_GPS)
 				lcd.print(data_GPS[3]);//Longitude
 				break;
 			case 4:
-				lcd.print("Date");
+				lcd.print((int)data_GPS[7]);
+				lcd.print("/");
+				lcd.print((int)data_GPS[6]);
+				lcd.print("/");
+				lcd.print((int)data_GPS[5]);
 				lcd.setCursor(0,1);
-				lcd.print("Time");
+				lcd.print((int)data_GPS[8]);
+				lcd.print(":");
+				lcd.print((int)data_GPS[9]);
+				lcd.print(":");
+				lcd.print((int)data_GPS[10]);
 				break;
 			case 5:
 				Vbat = mapfloat(analogRead(pinBat),0,1023,0,6.2);
 				percentBat = mapfloat(analogRead(pinBat),0,1023,0,100);
 				autonomy = 18-(6.2 -Vbat)/0.11;
 				lcd.setCursor(0,1);
-		    	lcd.print("Bat:");
+		    	lcd.print(F("Bat:"));
 	    		lcd.print(Vbat);
 	    		lcd.print((int)autonomy);
 	    		lcd.print(percentBat);
-	    		lcd.print("% ");
+	    		lcd.print(F("% "));
 	    		lcd.print((int)autonomy);
-	    		lcd.print(" h");
+	    		lcd.print(F(" h"));
 				break;
 		}
 	}else if (pos_menu[1] > 0 && pos_menu[2] <= 0) // Menu
@@ -187,22 +200,22 @@ void MainMenuDisplay(float *data_GPS)
 		{
 			case 1:
 				lcd.write((uint8_t)4);
-				lcd.print("Pr pts");
+				lcd.print(F("Pr pts"));
 				lcd.setCursor(1,1);
-				lcd.print("Pr iti");
+				lcd.print(F("Pr iti"));
 				break;
 			case 2:
 				lcd.setCursor(1,0);
-				lcd.print("Pr pts");
+				lcd.print(F("Pr pts"));
 				lcd.setCursor(0,1);
 				lcd.write((uint8_t)4);
 
 				if(mode_itinerary)
 				{
-					lcd.print("Stop iti");
+					lcd.print(F("Stop iti"));
 				}else
 				{
-					lcd.print("Pr iti");
+					lcd.print(F("Pr iti"));
 				}
 			break;
 			// case 3:
@@ -216,12 +229,14 @@ void MainMenuDisplay(float *data_GPS)
 		{
 			case 1 : 
 				//Launch functuion take point
-				lcd.print("Point");
+				lcd.print(F("Point"));
 				lcd.setCursor(0,1);
-				lcd.print("Took !");
+				lcd.print(F("Took !"));
 				delay(750);
 				//appelle fonction prise point
-				//writeWP2File("test.txt", "newWPTest");
+				takePoint=true;
+				// writeWP2File("waypoint.txt", "testWayPoint",data_GPS);
+				// Serial.println("Return from writing function");
 				//Facon sale pour le retour en arrière 
 				pos_menu[0] = pos_menu[2];
 				pos_menu[1] = 0;
@@ -233,16 +248,16 @@ void MainMenuDisplay(float *data_GPS)
 				//Launch function take itinerary
 				if (mode_itinerary)
 				{
-					lcd.print("Itinerary");
+					lcd.print(F("Itinerary"));
 					lcd.setCursor(0,1);
-					lcd.print("Stop");
+					lcd.print(F("Stop"));
 					mode_itinerary = !mode_itinerary;
 					//appelle function itineraire
 				}else
 				{
-					lcd.print("Itinerary");
+					lcd.print(F("Itinerary"));
 					lcd.setCursor(0,1);
-					lcd.print("Progress");
+					lcd.print(F("Progress"));
 					mode_itinerary = !mode_itinerary;
 					//appelle function itineraire
 				}
@@ -308,9 +323,10 @@ void MainMenuDisplay(float *data_GPS)
 	// }
 	else 
 	{
-		lcd.print("Error");
+		lcd.print(F("Error"));
 		lcd.setCursor(0,1);
-		lcd.print("Menu");
+		lcd.print(F("Menu"));
 		delay(250);
 	}
+	return;
 }
