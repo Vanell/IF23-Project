@@ -28,6 +28,8 @@ unsigned long previousMillis_LCD = millis();
 int const nb_data_GPS = 13;
 float data_GPS_Loop[13];
 String command;
+String wpFile="waypoint.txt";
+String itiFile="itinary.txt";
 
 
 
@@ -78,9 +80,11 @@ void setup()
 		//Serial.println(data_GPS_Loop[i]);
 	}
 	//SD initialisation
+	
+
+	//INITIALISATION SD
 	pinMode(SD_SS,OUTPUT);
 
-	//--> pour check l'init de la SD vaut mieux pas faire un while ?????
 	if (!SD.begin(SD_SS)){
 		lcd.setCursor(0,0);
 		lcd.print(F("SD NO OK"));
@@ -88,14 +92,15 @@ void setup()
 		delay(5000);	
     	return;
 	}
+
 	Serial.println("SD Init Ok");
 	lcd.setCursor(2,0);
 	lcd.print(F("SD OK"));
 	//testSD();
-	Serial.println("Itinarary:");
-	readFile("itinary.txt");
-	Serial.println("Waypoint:");
-	readFile("waypoint.txt");
+	// Serial.println("Itinarary:");
+	// readFile("itinary.txt");
+	// Serial.println("Waypoint:");
+	// readFile("waypoint.txt");
 	//Serial.println("opening sd for writing");
 	//writeWP2File("test.txt","Yeah nigga",66.66666,6.66666);
 	delay(500);
@@ -131,39 +136,48 @@ void loop()
 
 	if (changeData_LCD || ( pos_menu[1]<= 0 && newData))
 	{
+
 		changeData_LCD = false;
 		MainMenuDisplay(data_GPS_Loop);
 		previousMillis_LCD=millis();
+
 	}
 
 	//Serial
 	
 
-	// command="";
-	// while(Serial.available()>0){
-	// 	Serial.println("someting in buffer");
-	// 	command=command+Serial.read();;
-	// }
-	// if(command == "send")
-	// 	readFile("test.txt");
-	// if(command == "remove"){
-	// 	//char name[fileName.length()+1];
-	// 	//fileName.toCharArray(name, sizeof(name));
-	// 	SD.remove("test.txt");		
-	// }
+	command="";
+	while(Serial.available()>0){
+		//Serial.println(F("someting in buffer"));
+		command=command+(char)Serial.read();
+	}
+	//Serial.print("command: ");
+	//Serial.println(command);
+	if(command == "send")
+		readFile(wpFile);
+	if(command == "remove"){
+		char name[itiFile.length()+1];
+		itiFile.toCharArray(name, sizeof(name));
+		SD.remove(name);		
+	}
 		
 
 	//GPS
 	
 	get_data_GPS(data_GPS_Loop);
 	if(takePoint){
-		writeWP2File("waypoint.txt", "testWayPoint",data_GPS_Loop);
-		Serial.println("Return from writing function");
+
+		writeWP2File(wpFile, "testWayPoint",data_GPS_Loop);
+		//Serial.println("Return from writing function");
 		takePoint=false;
+
 	}
 	if(mode_itinerary && millis()-previousMillis_Iti>pgm_read_byte(&delay_GPS)){
-		writeWP2File("itinary.txt","test iti",data_GPS_Loop);
+
+		writeWP2File(itiFile,"test iti",data_GPS_Loop);
+
 	}
+	delay(10);
 
 }
 
