@@ -28,23 +28,7 @@ float truncateNumber(float x, int a){
 // 10 SECONDS
 // 11 ALTITUDE
 // 12 SPEED
-// void updateGPSVar(float data_GPS[]){
-	// nb_satGPS = (int)data_GPS[0];
-	// hdopGPS = (int)data_GPS[1];
-	// latGPS = data_GPS[2];
-	// lonGPS = data_GPS[3];
-	// age = data_GPS[4];
-	// year = data_GPS[5];
-	// month = data_GPS[6];
-	// day = data_GPS[7];
-	// hours = data_GPS[8];
-	// minutes = data_GPS[9];
-	// seconds = data_GPS[10];
-	// altitude = data_GPS[11];
-	// speed = data_GPS[12];
 
-
-// }
 void get_data_GPS(float data_GPS[])
 {
 	newData = false;
