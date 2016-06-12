@@ -17,7 +17,7 @@ void readFile(String name){
 			Serial.print(c);
 		}
 		myFile.close();
-		Serial.print("Done");
+		Serial.print("done");
 	  }
 	  else
 		Serial.println("Error while opening SD for reading");
@@ -34,7 +34,7 @@ void writeWP2File(String name, String wpName,float dataGPS[]){
     myFile = SD.open(filename, FILE_WRITE);
     char data[10];
     if (myFile) {
-      Serial.println("wrinting in file!");
+      //Serial.println("wrinting in file!");
       myFile.print(wpName);
       myFile.print(" ");
       //LATITUDE
