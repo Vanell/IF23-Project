@@ -1,7 +1,6 @@
 import time
 from time import sleep
 import serial
-import arduinoserial
 import os
 import gpxpy
 import gpxpy.gpx
@@ -36,14 +35,16 @@ def writeTrackpoint(gpx_seg,lat,lon,ele,time):
 
 fileName ='Data00'
 
-mountpoint = os.popen('ls /dev/ttyU*').read()
+mountpoint = os.popen('ls /dev/ttyUSB*').read()
 if mountpoint=='':
-	mountpoint = str(os.system('ls /dev/ttyA*'))
+	mountpoint = str(os.system('ls /dev/ttyACM*'))
 mountpoint =  mountpoint[:-1]
+
 print "Serial connexion to " + mountpoint
 print "initialization..." # Establish the connection on a specific port
 cont = False
-arduino = serial.Serial(mountpoint, 57600,timeout =1)
+arduino = serial.Serial(mountpoint, 9600,timeout = 1)
+
 i=0
 while arduino.inWaiting()==0:
 	sleep(0.1)
