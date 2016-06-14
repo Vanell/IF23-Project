@@ -2,21 +2,26 @@
 # Standard librairies
 import curses
 from time import sleep ,time
-from os import popen
+from os import popen, path	,makedirs, listdir
 import datetime
 import serial
+import csv
 
 #Arduino
 arduino = serial.Serial()
 arduino.baudrate = 57600
 port_connect = "nothing"
-files_arduino = list()
 connection_arduino = False
+
+#Calcule
+files = list()
+file_location = "data/"
 
 #Interface variable
 option_menu = 0
 interface_shell = list()
 interface_shell.append((time(),"Welcome on Elementaire GPS"))
+
 #Curse init
 screen = curses.initscr() # init curses 
 screen.keypad(1)
@@ -34,7 +39,7 @@ txt_menu =	[[2,"Connect",curses.A_NORMAL],
 			[2,"History Shell",curses.A_NORMAL],
 			[2,"Exit",curses.A_NORMAL]]
 
-txt_files_arduino = [0,"Files on Arduino",curses.A_UNDERLINE]
+txt_files = [0,"Files",curses.A_UNDERLINE]
 
 txt_connect = [[0,"Connection on :",curses.A_UNDERLINE],
 				[2,"",curses.A_NORMAL],]
@@ -74,7 +79,7 @@ def interface():
 
 	draw_limit_gui()
 	draw_connect()
-	draw_files_arduino()
+	draw_files()
 	draw_shell()
 
 	#Draw txt name prog & version
@@ -122,12 +127,59 @@ def interface():
 			draw_shell("Not connect")
 		interface()
 	elif selection_menu == 3: #Calcule
+		draw_shell("Select a file")
+		calcule()
 		interface()		
 	elif selection_menu == 4: #History shell
+		history()
 		interface()		
 	elif txt_menu[selection_menu][1] == "Exit": 
 		quit()
 
+def history():
+	screen.clear()
+	curses.noecho()
+	curses.curs_set(0)
+
+
+	screen.addstr(0,0,"q : quit | UP : previous | DOWN : next",curses.A_BOLD)
+	hor_line = ''.join(['-']*(maxX))
+	screen.addstr(1,0,hor_line)
+
+	selection= -1
+	option_menu = 0
+	change = True
+	while selection < 0:
+		screen.nodelay(1)
+
+		if change:
+			blank = [" "]*(maxX)
+			blank = ''.join(blank)
+			for i in range(len(interface_shell)-1,-1,-1):
+				j = len(interface_shell)-1-i
+				if j == (maxY-2): 
+					break
+				screen.addstr( j+1 ,24,blank)#Blank
+				tmp = datetime.datetime.fromtimestamp(interface_shell[i][0])#Parse time
+				screen.addstr( j+1 ,
+								0,
+								"[%s] : %s" %(tmp.strftime('%d-%m-%Y %H:%M:%S'),interface_shell[i][1]))#Write
+			screen.refresh()
+			change = False
+
+		action = screen.getch()
+
+		if action == curses.KEY_UP:
+			option_menu = (option_menu - 1)%len(txt_menu)
+			change = True
+		elif action == curses.KEY_DOWN:
+			option_menu = (option_menu + 1) %len(txt_menu)
+			change = True
+		elif action == ord('q'):
+			selection = option_menu
+
+def calcule():
+	pass
 
 ##Arduino function
 def list_tty():
@@ -183,11 +235,9 @@ def list_tty():
 		draw_shell("Port for connection :%s"%port_connect)
 		serial_Arduino()
 
-def list_file():
-	pass
-
 def serial_Arduino(commande=''):
 	global arduino
+	global interface_shell
 	global connection_arduino
 	begin_time = time()
 
@@ -248,17 +298,35 @@ def serial_Arduino(commande=''):
 							if "done" in data: 
 								download = True
 								break
-							else :
-								data_t.append(data)
+							else:
+								if data != "":
+									data_t.append(data)
 								data = list()
+
 					if time()-begin_time > 10:
 						break
 				if not download:
 					draw_shell("Error downloading")
 				else :	
 					draw_shell("Download complete")
-					return data_t
 					
+					#Give a name for the file datas
+
+					curses.echo()
+					curses.curs_set(1)
+					screen.nodelay(0)
+					draw_shell("Name file ? :")
+					file_name = screen.getstr((maxY- height_shell_min)+1, 37, 20)
+					draw_shell("Create a new file : %s | %s Points" %(file_name,len(data_t)))
+					screen.refresh()
+					#Create file 
+					newfile = csv.writer(open("%s%s.csv"%(file_location, file_name), "wb"))
+					newfile.writerow(["nbsat","hdop","lat","long","bat","time"])
+					
+					for i in range(len(data_t)):
+						data = data_t[i].split(":")
+						newfile.writerow(data)
+
 		elif "rm" in commande:
 			if not arduino.isOpen():
 				connection_arduino = False 
@@ -308,11 +376,20 @@ def draw_connect():
 	for z in range(len(txt_connect)):
 		screen.addstr(z+height_menu_min+4,txt_connect[z][0] , txt_connect[z][1],txt_connect[z][2])
 
-def draw_files_arduino():
-	screen.addstr(0, width_menu_min + txt_files_arduino[0] + 1,txt_files_arduino[1],txt_files_arduino[2])
+def draw_files():
+	global files
+
+	screen.addstr(0, width_menu_min + txt_files[0] + 1,txt_files[1],txt_files[2])
 	
-	for i in range(len(files_arduino)):
-		screen.addstr(i+1, width_menu_min + txt_files_arduino[0] + 2,files_arduino[i],curses.A_NORMAL)		
+	if not path.exists(file_location):
+		makedirs(file_location)
+	else :
+		files = listdir(file_location)
+	if files == list():
+		screen.addstr(1, width_menu_min + txt_files[0] + 2,"No file",curses.A_NORMAL)
+	else:
+		for i in range(len(files)):
+			screen.addstr(i+1, width_menu_min + txt_files[0] + 2,files[i],curses.A_NORMAL)		
 
 def draw_shell(data=''):
 	global interface_shell
@@ -366,4 +443,5 @@ def quit():
 
 begin_screen()
 interface()
+arduino.close()
 curses.endwin() #Close curses
