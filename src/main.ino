@@ -8,13 +8,13 @@
 //#include "Bounce2.h"
 //#include "SoftwareSerial.h"
 //#include "Arduino.h"
-#include <SD.h>
+//#include <SD.h>
 #include <avr/pgmspace.h>
 ////HomeMade
 
 
 
-#include <pin.h>
+//#include <pin.h>
 #include <GPS.cpp>
 #include <SDGPS.cpp>
 #include <Affichage.cpp>
@@ -24,10 +24,10 @@
 
 //unsigned long currentMillis;
 unsigned long previousMillis_Iti =0;
-unsigned long previousMillis_LCD = millis();
-int const nb_data_GPS = 13;
+//unsigned long previousMillis_LCD = millis();
+//int const nb_data_GPS = 13;
 float data_GPS_Loop[13];
-String command;
+//String command;
 String wpFile="waypoint.txt";
 String itiFile="itinary.txt";
 
@@ -65,7 +65,7 @@ void setup()
 	ss.begin(4800);
 
 	//Init menu 
-	for (int i(0) ; i < nb_level_menu ; i++)
+	for (int i(0) ; i <4 ; i++)
 	{
 		pos_menu[i] = 0;
 
@@ -75,7 +75,7 @@ void setup()
 	max_screen_lvl[1] = 2;// Menu
 	//max_screen_lvl[2] = 3;//Option
 
-	for(int i=0;i<nb_data_GPS;i++){
+	for(int i=0;i<13;i++){
 		data_GPS_Loop[i]=0;
 		//Serial.println(data_GPS_Loop[i]);
 	}
@@ -85,15 +85,15 @@ void setup()
 	//INITIALISATION SD
 	pinMode(SD_SS,OUTPUT);
 
-	if (!SD.begin(SD_SS)){
+	if (!SD.begin(pgm_read_word(&SD_SS))){
 		lcd.setCursor(0,0);
 		lcd.print(F("SD NO OK"));
-   		Serial.println("initfailed!");
+   		//Serial.println("initfail");
 		delay(5000);	
     	return;
 	}
 
-	Serial.println("SD Init Ok");
+	//Serial.println("SD Init Ok");
 	lcd.setCursor(2,0);
 	lcd.print(F("SD OK"));
 	//testSD();
@@ -124,13 +124,13 @@ void setup()
 	// lcd.write((uint8_t)3);
 
 	delay(750);
-	Serial.println("initdone.");
+	Serial.println("in");
 
 }
 
 void loop()
 {
-	//currentMillis = millis();//Get time at the begin
+	
 	btn_push = ReadKeypad();
 	MainMenuBtn();
 
@@ -139,42 +139,60 @@ void loop()
 
 		changeData_LCD = false;
 		MainMenuDisplay(data_GPS_Loop);
-		previousMillis_LCD=millis();
+		//previousMillis_LCD=millis();
 
 	}
 
 	//Serial
 	
 
-	command="";
+	String command="";
+	String name = "";
 	while(Serial.available()>0){
 		//Serial.println(F("someting in buffer"));
 		command=command+(char)Serial.read();
 	}
 	//Serial.print("command: ");
 	//Serial.println(command);
-	if(command == "send")
-		readFile(wpFile);
-	if(command == "remove"){
-		char name[itiFile.length()+1];
-		itiFile.toCharArray(name, sizeof(name));
-		SD.remove(name);		
-	}
-		
 
+	if(command.length()>5){
+		name = command.substring(4);
+		if(command.substring(0,2) == "sen"){
+
+			readFile(name);
+
+		}
+		if(command.substring(0,2) == "rem"){
+			char strchar[name.length()+1];
+    		name.toCharArray(strchar, sizeof(strchar));
+			SD.remove(strchar);
+		}
+
+	}
+	else{
+
+		if(command == "rd"){
+			//Check serial
+			Serial.println("yp");
+			
+		}
+	}
+	
+	
 	//GPS
 	
 	get_data_GPS(data_GPS_Loop);
 	if(takePoint){
 
-		writeWP2File(wpFile, "testWayPoint",data_GPS_Loop);
+		writeWP2File(wpFile, "twp",data_GPS_Loop);
 		//Serial.println("Return from writing function");
 		takePoint=false;
 
 	}
-	if(mode_itinerary && millis()-previousMillis_Iti>pgm_read_byte(&delay_GPS)){
+	if(mode_itinerary && millis()-previousMillis_Iti>60000){
 
-		writeWP2File(itiFile,"test iti",data_GPS_Loop);
+		writeWP2File(itiFile,"tit",data_GPS_Loop);
+		previousMillis_Iti=millis();
 
 	}
 	delay(10);
