@@ -60,9 +60,9 @@ char ReadKeypad()
 			changeData_LCD = true;
 			if(debouncerBP1.read()){
 				if(debouncerBP0.read()){//SW4
-					charBPN = 'B';
-				}else{//SW3
 					charBPN = 'S';
+				}else{//SW3
+					charBPN = 'B';
 				}
 			}else{
 				if(debouncerBP0.read()){//SW2
@@ -89,19 +89,25 @@ void MainMenuBtn()
 	else if(btn_push == 'S')
 	{
 		//faire une putain de boucle for ...
-		pos_menu[3] = pos_menu[2];
-		pos_menu[2] = pos_menu[1];
-		pos_menu[1] = pos_menu[0];
+		for(int i = 3;i>0;i--){
+			pos_menu[i]=pos_menu[i-1];
+		}
+		// pos_menu[3] = pos_menu[2];
+		// pos_menu[2] = pos_menu[1];
+		// pos_menu[1] = pos_menu[0];
 		pos_menu[0] = 1 ;
 	}
 	else if(btn_push == 'B')
 	{
 		if (pos_menu[1] > 0)
 		{
-			//faire une putain de boucle for ...
-			pos_menu[0] = pos_menu[1]; 
-			pos_menu[1] = pos_menu[2]; 
-			pos_menu[2] = pos_menu[3]; 
+			//faire une putain de boucle for ...=
+			for(int i =0;i<3;i++){
+				pos_menu[i] = pos_menu[i+1];
+			}
+			// pos_menu[0] = pos_menu[1]; 
+			// pos_menu[1] = pos_menu[2]; 
+			// pos_menu[2] = pos_menu[3]; 
 			pos_menu[3] = 0;
 		}else{
 			pos_menu[0] = 5 ; // Menu batterie 
@@ -141,7 +147,7 @@ void MainMenuDisplay(float data_GPS[])
 	lcd.setCursor(0,0);
 	//Battery
 	float Vbat; //Value of batterie
-	int percentBat;
+	char percentBat;
 	float autonomy;
 
 	if (pos_menu[1] <= 0)//Root menu
@@ -168,21 +174,21 @@ void MainMenuDisplay(float data_GPS[])
 				lcd.print(data_GPS[3]);//Longitude
 				break;
 			case 4:
-				lcd.print((int)data_GPS[7]);
-				lcd.print("/");
-				lcd.print((int)data_GPS[6]);
-				lcd.print("/");
 				lcd.print((int)data_GPS[5]);
+				lcd.print(F("/"));
+				lcd.print((int)data_GPS[6]);
+				lcd.print(F("/"));
+				lcd.print((int)data_GPS[7]);
 				lcd.setCursor(0,1);
 				lcd.print((int)data_GPS[8]);
-				lcd.print(":");
+				lcd.print(F(":"));
 				lcd.print((int)data_GPS[9]);
-				lcd.print(":");
+				lcd.print(F(":"));
 				lcd.print((int)data_GPS[10]);
 				break;
 			case 5:
-				Vbat = mapfloat(analogRead(pinBat),0,1023,0,6.2);
-				percentBat = mapfloat(analogRead(pinBat),0,1023,0,100);
+				Vbat = mapfloat(analogRead(pgm_read_word(&pinBat)),0,1023,0,6.2);
+				percentBat = mapfloat(analogRead(pgm_read_word(&pinBat)),0,1023,0,100);
 				autonomy = 18-(6.2 -Vbat)/0.11;
 				lcd.setCursor(0,1);
 		    	lcd.print(F("Bat:"));
