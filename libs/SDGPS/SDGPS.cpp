@@ -5,83 +5,78 @@
 
 
 //SD function
+// char *convertStringToCharArray(String str){
+//     char strchar[str.length()+1];
+//     str.toCharArray(strchar, sizeof(strchar));
+//     return strchar;
+// }
+
+void listFiles(){
+  File root = SD.open("/");
+  while(true){
+    File entry = root.openNextFile();
+    if(!entry)
+      break;
+    Serial.print(entry.name());
+    Serial.print(" ");
+    Serial.println(entry.size(),DEC);
+    entry.close();
+  }
+}
 void readFile(String name){
     char c;
     File myFile;
-    char filename[name.length()+1];
-    name.toCharArray(filename, sizeof(filename));
-    myFile = SD.open(filename);
+    char strchar[name.length()+1];
+    name.toCharArray(strchar, sizeof(strchar));
+    myFile = SD.open(strchar);
     if(myFile){
 		while(myFile.available()){
       c = ((char)myFile.read());
 			Serial.print(c);
 		}
 		myFile.close();
-		Serial.print("done");
+		Serial.print("ok");
 	  }
-	  else
-		Serial.println("Error while opening SD for reading");
+	  //else
+		//Serial.println("Err");
     return;
 }
 
 
-
-
 void writeWP2File(String name, String wpName,float dataGPS[]){
     File myFile;
-    char filename[name.length()+1];
-    name.toCharArray(filename, sizeof(filename));
-    myFile = SD.open(filename, FILE_WRITE);
+    char strchar[name.length()+1];
+    name.toCharArray(strchar, sizeof(strchar));
+    myFile = SD.open(strchar, FILE_WRITE);
     char data[10];
     if (myFile) {
-      //Serial.println("wrinting in file!");
       myFile.print(wpName);
-      myFile.print(" ");
-      //LATITUDE
-      dtostrf(dataGPS[2],1,6,data);
-      myFile.print(data);
-      myFile.print(" ");
-      //LOGITUDE
-      dtostrf(dataGPS[3],1,6,data);
-      myFile.print(data);
-      myFile.print(" ");
-      //NB SATELLITES
-      dtostrf(dataGPS[0],1,0,data);
-      myFile.print(data);
-      myFile.print(" ");
-      //HDOP
-      dtostrf(dataGPS[1],1,0,data);
-      myFile.print(data);
-      myFile.print(" ");
-      //DAY
-      dtostrf(dataGPS[7],1,0,data);
-      myFile.print(data);
-      myFile.print("/");
-      //MONTH
-      dtostrf(dataGPS[6],1,0,data);
-      myFile.print(data);
-      myFile.print("/");
-      //YEAR
-      dtostrf(dataGPS[5],1,0,data);
-      myFile.print(data);
-      myFile.print(" ");
-      //HOURS
-      dtostrf(dataGPS[8],1,0,data);
-      myFile.print(data);
-      myFile.print(":");
-      //MINUTES
-      dtostrf(dataGPS[9],1,0,data);
-      myFile.print(data);
-      myFile.print(":");
+      myFile.print(F(" "));
+      //LATITUDE Longitude
+      for(int i =2;i<4;i++){
+        dtostrf(dataGPS[i],1,6,data);
+        myFile.print(data);
+        myFile.print(F(" "));
+      }
+      for(int i =0;i<2;i++){
+        dtostrf(dataGPS[i],1,6,data);
+        myFile.print(data);
+        myFile.print(F(" "));
+      }
+      for(int i =5;i<10;i++){
+        dtostrf(dataGPS[i],1,0,data);
+        myFile.print(data);
+        myFile.print(F(" "));
+      }
       //SECONDS
       dtostrf(dataGPS[10],1,0,data);
       myFile.println(data);
 
       myFile.close();
     } 
-    else {
-      Serial.println("error while opening SD for writing");
-    }
+    //else {
+      //Serial.println("err");
+    //}
     return;
   }
 
