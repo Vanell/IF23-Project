@@ -1,6 +1,6 @@
 #include "TinyGPS.h"
 #include "SoftwareSerial.h"
-#include <pin.h>
+//#include <pin.h>
 #include <GPS.h>
 
 
@@ -61,7 +61,7 @@ void get_data_GPS(float data_GPS[])
 	// Serial.println(failed);
 	
 	if (chars == 0){
-		Serial.println("** No characters received from GPS: check wiring **");
+		//Serial.println("NocharGPS");
 		//newData = false;
 	}
 
@@ -115,17 +115,20 @@ void get_data_GPS(float data_GPS[])
 		gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &fix_age_date);
 		if (fix_age_date == TinyGPS::GPS_INVALID_AGE)
 		{
-			data_GPS[5] = 8888;//year
-			data_GPS[6] = 8888;//month
-			data_GPS[7] = 8888;//day
-			data_GPS[8] = 8888;//hour
-			data_GPS[9] = 8888;//minute
-			data_GPS[10] = 8888;//seconde
+			for(int i =5;i<11;i++){
+				data_GPS[i]=8888;
+			}
+			// data_GPS[5] = 8888;//day
+			// data_GPS[6] = 8888;//month
+			// data_GPS[7] = 8888;//year
+			// data_GPS[8] = 8888;//hour
+			// data_GPS[9] = 8888;//minute
+			// data_GPS[10] = 8888;//seconde
 		}else
 		{
-			data_GPS[5] = year;//year
+			data_GPS[5] = (float)day;//day
 			data_GPS[6] = (float)month;//month
-			data_GPS[7] = (float)day;//day
+			data_GPS[7] = year;//year
 			data_GPS[8] = (float)hour;//dhour
 			data_GPS[9] = (float)minute;//minute
 			data_GPS[10] = (float)second;//seconde
