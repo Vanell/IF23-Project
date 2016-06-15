@@ -33,24 +33,22 @@ void get_data_GPS(float data_GPS[])
 {
 	newData = false;
 	float flat, flon;
-	unsigned long fix_age, date, time,fix_age_date, chars = 0;
+	unsigned long fix_age, time,fix_age_date;
+	//unsigned long chars = 0;
 	unsigned short sentences = 0, failed = 0;
 	unsigned long start = millis();
 	int year;
 	byte month, day, hour, minute, second, hundredths;
 
-	//impletment smartdelay
-	
 	
 	while (ss.available()&&millis()-start<pgm_read_byte(&delay_GPS))
 	{
 		char c = ss.read();
-	    // Serial.write(c); // uncomment this line if you want to see the GPS data flowing
-	    if (gps.encode(c)) // Did a new valid sentence come in?
+	    if (gps.encode(c)) 
 	      newData = true;
 	}
 	
-	gps.stats(&chars, &sentences, &failed);
+	//gps.stats(&chars, &sentences, &failed);
 
 	//DEBUG
 	// Serial.print(" CHARS=");
@@ -60,10 +58,10 @@ void get_data_GPS(float data_GPS[])
 	// Serial.print(" CSUM ERR=");
 	// Serial.println(failed);
 	
-	if (chars == 0){
-		//Serial.println("NocharGPS");
-		//newData = false;
-	}
+	// if (chars == 0){
+	// 	Serial.println("NocharGPS");
+	// 	newData = false;
+	// }
 
 	
   
@@ -87,8 +85,6 @@ void get_data_GPS(float data_GPS[])
 		else{
 			data_GPS[1] = 8888;
 		}
-
-		//gps.f_get_position(&flat, &flon, &fix_age);
 
 		//Lattidue
 		if (flat != TinyGPS::GPS_INVALID_F_ANGLE){
@@ -118,12 +114,6 @@ void get_data_GPS(float data_GPS[])
 			for(int i =5;i<11;i++){
 				data_GPS[i]=8888;
 			}
-			// data_GPS[5] = 8888;//day
-			// data_GPS[6] = 8888;//month
-			// data_GPS[7] = 8888;//year
-			// data_GPS[8] = 8888;//hour
-			// data_GPS[9] = 8888;//minute
-			// data_GPS[10] = 8888;//seconde
 		}else
 		{
 			data_GPS[5] = (float)day;//day
@@ -155,5 +145,5 @@ void get_data_GPS(float data_GPS[])
   
 
 	}
-	return;// data_GPS;
+	return;
 }

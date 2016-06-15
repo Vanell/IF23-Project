@@ -5,16 +5,8 @@
 
 
 ////Standard
-//#include "Bounce2.h"
-//#include "SoftwareSerial.h"
-//#include "Arduino.h"
-//#include <SD.h>
 #include <avr/pgmspace.h>
 ////HomeMade
-
-
-
-//#include <pin.h>
 #include <GPS.cpp>
 #include <SDGPS.cpp>
 #include <Affichage.cpp>
@@ -22,12 +14,8 @@
 
 
 
-//unsigned long currentMillis;
 unsigned long previousMillis_Iti =0;
-//unsigned long previousMillis_LCD = millis();
-//int const nb_data_GPS = 13;
 float data_GPS_Loop[13];
-//String command;
 String wpFile="waypoint.txt";
 String itiFile="itinary.txt";
 
@@ -59,7 +47,7 @@ void setup()
 	// lcd.createChar(4, char_arrow_left );
 
 	//Begin serial computer
-	Serial.begin(9600);
+	Serial.begin(19200);
 
 	//Begin serial GPS
 	ss.begin(4800);
@@ -79,8 +67,6 @@ void setup()
 		data_GPS_Loop[i]=0;
 		//Serial.println(data_GPS_Loop[i]);
 	}
-	//SD initialisation
-	
 
 	//INITIALISATION SD
 	pinMode(SD_SS,OUTPUT);
@@ -96,13 +82,6 @@ void setup()
 	//Serial.println("SD Init Ok");
 	lcd.setCursor(2,0);
 	lcd.print(F("SD OK"));
-	//testSD();
-	// Serial.println("Itinarary:");
-	// readFile("itinary.txt");
-	// Serial.println("Waypoint:");
-	// readFile("waypoint.txt");
-	//Serial.println("opening sd for writing");
-	//writeWP2File("test.txt","Yeah nigga",66.66666,6.66666);
 	delay(500);
 
 	//LCD message when start
@@ -149,20 +128,19 @@ void loop()
 	String command="";
 	String name = "";
 	while(Serial.available()>0){
-		//Serial.println(F("someting in buffer"));
 		command=command+(char)Serial.read();
 	}
-	//Serial.print("command: ");
-	//Serial.println(command);
 
 	if(command.length()>5){
 		name = command.substring(4);
-		if(command.substring(0,2) == "sen"){
-
+		//Serial.println(name);
+		//Serial.println(command.substring(0,3));
+		if(command.substring(0,3) == "sen"){
+			//Serial.println("gotta send");
 			readFile(name);
 
 		}
-		if(command.substring(0,2) == "rem"){
+		if(command.substring(0,3) == "rem"){
 			char strchar[name.length()+1];
     		name.toCharArray(strchar, sizeof(strchar));
 			SD.remove(strchar);
@@ -177,7 +155,7 @@ void loop()
 			
 		}
 	}
-	
+	Serial.flush();
 	
 	//GPS
 	
@@ -185,18 +163,15 @@ void loop()
 	if(takePoint){
 
 		writeWP2File(wpFile, "twp",data_GPS_Loop);
-		//Serial.println("Return from writing function");
 		takePoint=false;
 
 	}
-	if(mode_itinerary && millis()-previousMillis_Iti>60000){
-
-		writeWP2File(itiFile,"tit",data_GPS_Loop);
-		previousMillis_Iti=millis();
-
+	if(mode_itinerary){
+		float deltaD = (millis()-previousMillis_Iti)*data_GPS_Loop[11]*3.6;
+		if((deltaD>5&&data_GPS_Loop[11]>2)|| (millis()-previousMillis_Iti)>60000){
+			writeWP2File(itiFile,"tit",data_GPS_Loop);
+			previousMillis_Iti=millis();
+		}
 	}
 	delay(10);
-
 }
-
-

@@ -1,28 +1,8 @@
 #include <SD.h>
-//#include <GPS.cpp>
+#include <SDGPS.h>
 
 
 
-
-//SD function
-// char *convertStringToCharArray(String str){
-//     char strchar[str.length()+1];
-//     str.toCharArray(strchar, sizeof(strchar));
-//     return strchar;
-// }
-
-void listFiles(){
-  File root = SD.open("/");
-  while(true){
-    File entry = root.openNextFile();
-    if(!entry)
-      break;
-    Serial.print(entry.name());
-    Serial.print(" ");
-    Serial.println(entry.size(),DEC);
-    entry.close();
-  }
-}
 void readFile(String name){
     char c;
     File myFile;
@@ -37,8 +17,8 @@ void readFile(String name){
 		myFile.close();
 		Serial.print("ok");
 	  }
-	  //else
-		//Serial.println("Err");
+    else
+      Serial.println("err");
     return;
 }
 
@@ -51,32 +31,31 @@ void writeWP2File(String name, String wpName,float dataGPS[]){
     char data[10];
     if (myFile) {
       myFile.print(wpName);
-      myFile.print(F(" "));
+      myFile.print(F(","));
       //LATITUDE Longitude
       for(int i =2;i<4;i++){
         dtostrf(dataGPS[i],1,6,data);
         myFile.print(data);
-        myFile.print(F(" "));
+        myFile.print(F(","));
       }
       for(int i =0;i<2;i++){
         dtostrf(dataGPS[i],1,6,data);
         myFile.print(data);
-        myFile.print(F(" "));
+        myFile.print(F(","));
       }
-      for(int i =5;i<10;i++){
-        dtostrf(dataGPS[i],1,0,data);
+      for(int i =4;i<13;i++){
+        dtostrf(dataGPS[i],1,2,data);
         myFile.print(data);
-        myFile.print(F(" "));
+        myFile.print(F(","));
       }
-      //SECONDS
-      dtostrf(dataGPS[10],1,0,data);
+      float Vbat = mapfloat(analogRead(0),0,1023,0,6.2);
+      dtostrf(Vbat,1,2,data);
       myFile.println(data);
 
       myFile.close();
     } 
-    //else {
-      //Serial.println("err");
-    //}
+    else
+      Serial.println("err");
     return;
   }
 

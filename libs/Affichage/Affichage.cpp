@@ -3,11 +3,7 @@
 #include "Bounce2.h"
 #include <pin.h>
 #include <Affichage.h>
-//#include <SDGPS.cpp>
-//#include <SDGPS.cpp>
-
-//LiquidCrystal lcd(LCD_RS,LCD_Enable,LCD_D4,LCD_D5,LCD_D6,LCD_D7);
-LiquidCrystal lcd(4,5,6,7,8,9);
+LiquidCrystal lcd(LCD_RS,LCD_Enable,LCD_D4,LCD_D5,LCD_D6,LCD_D7);
 
 Bounce debouncerBPEN = Bounce(BPEN,5);
 Bounce debouncerBP0 = Bounce(BP0,5);
@@ -47,31 +43,21 @@ char ReadKeypad()
 	debouncerBP0.update();
 	debouncerBP1.update();
 	if (debouncerBPEN.rose()){
-
-		// lastMillis_BP = millis();
-		
-		// if (!state_LCD)
-		// {
-		// 	lcd.display();
-		// 	state_LCD = true;
-		// }
-		// else
-		// {
-			changeData_LCD = true;
-			if(debouncerBP1.read()){
-				if(debouncerBP0.read()){//SW4
-					charBPN = 'S';
-				}else{//SW3
-					charBPN = 'B';
-				}
-			}else{
-				if(debouncerBP0.read()){//SW2
-					charBPN = 'D';
-				}else{//SW1
-					charBPN = 'U';
-				}
-			} 
-		// }
+		changeData_LCD = true;
+		if(debouncerBP1.read()){
+			if(debouncerBP0.read()){//SW4
+				charBPN = 'S';
+			}else{//SW3
+				charBPN = 'B';
+			}
+		}
+		else{
+			if(debouncerBP0.read()){//SW2
+				charBPN = 'D';
+			}else{//SW1
+				charBPN = 'U';
+			}
+		} 
 	}
 	return charBPN;
 }
@@ -88,26 +74,18 @@ void MainMenuBtn()
 	}
 	else if(btn_push == 'S')
 	{
-		//faire une putain de boucle for ...
 		for(int i = 3;i>0;i--){
 			pos_menu[i]=pos_menu[i-1];
 		}
-		// pos_menu[3] = pos_menu[2];
-		// pos_menu[2] = pos_menu[1];
-		// pos_menu[1] = pos_menu[0];
 		pos_menu[0] = 1 ;
 	}
 	else if(btn_push == 'B')
 	{
 		if (pos_menu[1] > 0)
 		{
-			//faire une putain de boucle for ...=
 			for(int i =0;i<3;i++){
 				pos_menu[i] = pos_menu[i+1];
 			}
-			// pos_menu[0] = pos_menu[1]; 
-			// pos_menu[1] = pos_menu[2]; 
-			// pos_menu[2] = pos_menu[3]; 
 			pos_menu[3] = 0;
 		}else{
 			pos_menu[0] = 5 ; // Menu batterie 
@@ -190,14 +168,14 @@ void MainMenuDisplay(float data_GPS[])
 				Vbat = mapfloat(analogRead(pgm_read_word(&pinBat)),0,1023,0,6.2);
 				percentBat = mapfloat(analogRead(pgm_read_word(&pinBat)),0,1023,0,100);
 				autonomy = 18-(6.2 -Vbat)/0.11;
-				lcd.setCursor(0,1);
+				lcd.setCursor(0,0);
 		    	lcd.print(F("Bat:"));
 	    		lcd.print(Vbat);
-	    		lcd.print((int)autonomy);
+	    		lcd.setCursor(0,1);
 	    		lcd.print(percentBat);
 	    		lcd.print(F("% "));
 	    		lcd.print((int)autonomy);
-	    		lcd.print(F(" h"));
+	    		lcd.print(F("h"));
 				break;
 		}
 	}else if (pos_menu[1] > 0 && pos_menu[2] <= 0) // Menu
@@ -208,7 +186,13 @@ void MainMenuDisplay(float data_GPS[])
 				lcd.write((uint8_t)4);
 				lcd.print(F("Pr pts"));
 				lcd.setCursor(1,1);
-				lcd.print(F("Pr iti"));
+				if(mode_itinerary)
+				{
+					lcd.print(F("Stop iti"));
+				}else
+				{
+					lcd.print(F("Pr iti"));
+				}
 				break;
 			case 2:
 				lcd.setCursor(1,0);
@@ -224,10 +208,6 @@ void MainMenuDisplay(float data_GPS[])
 					lcd.print(F("Pr iti"));
 				}
 			break;
-			// case 3:
-			// 	lcd.write((uint8_t)4);
-			// 	lcd.print("Option");
-			// 	break;
 		}
 	}else if ( pos_menu[2] > 0 && pos_menu[3] <= 0) //Menu choose
 	{
@@ -239,11 +219,7 @@ void MainMenuDisplay(float data_GPS[])
 				lcd.setCursor(0,1);
 				lcd.print(F("Took !"));
 				delay(750);
-				//appelle fonction prise point
 				takePoint=true;
-				// writeWP2File("waypoint.txt", "testWayPoint",data_GPS);
-				// Serial.println("Return from writing function");
-				//Facon sale pour le retour en arrière 
 				pos_menu[0] = pos_menu[2];
 				pos_menu[1] = 0;
 				pos_menu[2] = 0;
@@ -258,75 +234,22 @@ void MainMenuDisplay(float data_GPS[])
 					lcd.setCursor(0,1);
 					lcd.print(F("Stop"));
 					mode_itinerary = !mode_itinerary;
-					//appelle function itineraire
 				}else
 				{
 					lcd.print(F("Itinerary"));
 					lcd.setCursor(0,1);
 					lcd.print(F("Progress"));
 					mode_itinerary = !mode_itinerary;
-					//appelle function itineraire
 				}
 				delay(1000);
-				//Facon sale pour le retour en arrière 
 				pos_menu[0] = pos_menu[2];
 				pos_menu[1] = 0;
 				pos_menu[2] = 0;
 				changeData_LCD = true;
 				break;
 
-			// case 3 : //Choose option
-			// 	switch (pos_menu[0])
-			// 	{
-			// 		case 1 : 
-			// 		//Option 1
-			// 		lcd.print("Option 1");
-			// 		break;
-			// 		case 2 : 
-			// 		//Option 2
-			// 		lcd.print("Option 2");
-			// 		break;
-			// 		case 3 : 
-			// 		//Option 3
-			// 		lcd.print("Option 3");
-			// 		break;
-
-			// 	}
-			// 	break;
 		}
 	}
-	// else if (pos_menu[3] > 0 && pos_menu[2] == 3)//optioyn 
-	// {
-	// 	switch(pos_menu[1])
-	// 	{
-	// 		case 1 : 
-	// 			//Option 1
-	// 			lcd.print("Opt 1");
-	// 			lcd.setCursor(0,1);
-	// 			lcd.print("Choose");
-	// 			delay(750);
-	// 			break;
-	// 		case 2 : 
-	// 			//Option 2
-	// 			lcd.print("Opt 2");
-	// 			lcd.setCursor(0,1);
-	// 			lcd.print("Choose");
-	// 			delay(750);
-	// 			break;
-	// 		case 3 : 
-	// 			//Option 3
-	// 			lcd.print("Opt 3");
-	// 			lcd.setCursor(0,1);
-	// 			lcd.print("Choose");
-	// 			delay(750);
-	// 			break;
-	// 	}
-	// 	pos_menu[0] = pos_menu[3];
-	// 	pos_menu[1] = 0;
-	// 	pos_menu[2] = 0;
-	// 	pos_menu[3] = 0;
-	// 	changeData_LCD = true;
-	// }
 	else 
 	{
 		lcd.print(F("Error"));
