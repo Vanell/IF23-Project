@@ -9,7 +9,7 @@ import csv
 
 #Arduino
 arduino = serial.Serial()
-arduino.baudrate = 57600
+arduino.baudrate = 19200
 port_connect = "nothing"
 connection_arduino = False
 
@@ -116,13 +116,13 @@ def interface():
 		interface()
 	elif selection_menu == 1 : #Download file
 		if connection_arduino :
-			serial_Arduino("send")
+			serial_Arduino("sen:itinary.txt")
 		else :
 			draw_shell("Not connect")
 		interface()
 	elif selection_menu == 2: #Delete file
 		if connection_arduino :
-			serial_Arduino("rm")
+			serial_Arduino("rem")
 		else:
 			draw_shell("Not connect")
 		interface()
@@ -179,7 +179,74 @@ def history():
 			selection = option_menu
 
 def calcule():
-	pass
+	if files != list():
+		draw_shell("Select file")
+
+		selection_file = -1
+		option_file = 0
+		files.append("BACK")
+
+		while selection_file < 0:
+			screen.nodelay(1)
+
+			#Menu
+			graphics = [0]*len(files)
+			graphics[option_file] = curses.A_REVERSE
+
+			for i in range(len(files)):
+				screen.addstr(i+1, width_menu_min + txt_files[0] + 2,files[i],graphics[i])	
+			screen.refresh()
+			action = screen.getch()
+
+			if action == curses.KEY_UP:
+				option_file = (option_file - 1)%len(files)
+			elif action == curses.KEY_DOWN:
+				option_file = (option_file + 1) %len(files)
+			elif action == ord('\n'):
+				selection_file = option_file
+
+		if not "BACK" in files[selection_file]:
+			select_file = files[selection_file]
+			draw_shell("File select : %s"%select_file)
+
+			txt_file_okay = ["YES","NO"]
+			
+			pad_file_okay = curses.newpad(len(txt_file_okay)+3, 30)
+			pad_file_okay.addstr(1,int(30/2-len("Launch calcule")/2),"Launch calcule",curses.A_UNDERLINE)
+			pad_file_okay.border()
+			y = int(maxY/2 - len(txt_file_okay)/2)-1
+			x = int(maxX/2 - 30/2)
+
+
+			option_file_okay = 0
+			selection_file_okay = -1
+
+			while selection_file_okay < 0:
+				pad_file_okay.nodelay(1)
+
+				#Menu
+				graphics = [0]*len(txt_file_okay)
+				graphics[option_file_okay] = curses.A_REVERSE
+
+				for z in range(len(txt_file_okay)):
+					pad_file_okay.addstr(z+2,int(30/2-len(txt_file_okay[z])/2),txt_file_okay[z],graphics[z])
+				
+				action = screen.getch()
+				if action == curses.KEY_UP:
+					option_file_okay = (option_file_okay - 1)%len(txt_file_okay)
+				elif action == curses.KEY_DOWN:
+					option_file_okay = (option_file_okay + 1) %len(txt_file_okay)
+				elif action == ord('\n'):
+					selection_file_okay = option_file_okay
+
+				pad_file_okay.refresh(0,0,y,x, 50,100)
+
+			if "YES" in txt_file_okay[selection_file_okay]:
+				draw_shell("Calcul launched")
+
+	else : 
+		draw_shell("No file for calcul")
+
 
 ##Arduino function
 def list_tty():
@@ -251,10 +318,10 @@ def serial_Arduino(commande=''):
 			arduino.open()
 		if arduino.isOpen() :
 			draw_shell("Port %s is open"%arduino.port)
-		sleep(1)
+		sleep(3)
 		arduino.flushInput()
 
-		arduino.write('ready')
+		arduino.write('rd')
 		while arduino.isOpen():
 			
 			if arduino.inWaiting() > 0:
@@ -268,7 +335,7 @@ def serial_Arduino(commande=''):
 		
 		data = ''.join(data[:-1])
 		
-		if "okay" in data:
+		if "yp" in data:
 			draw_shell("Arduino is ready")
 			connection_arduino = True
 		else :
@@ -276,7 +343,7 @@ def serial_Arduino(commande=''):
 	
 	else :
 		download = False
-		if "send" in commande:
+		if "sen" in commande:
 			if not arduino.isOpen():
 				connection_arduino = False 
 				serial_Arduino()
@@ -286,7 +353,7 @@ def serial_Arduino(commande=''):
 				data = list()
 				arduino.flushInput()
 				arduino.write(commande)
-				sleep(2)
+				sleep(3)
 				
 				while arduino.isOpen():
 					if arduino.inWaiting() > 0:
@@ -295,16 +362,22 @@ def serial_Arduino(commande=''):
 					if data != list():
 						if data[-1] == "\r" or data[-1] == "\n":
 							data = ''.join(data[:-1])
-							if "done" in data: 
+							if "ok" in data: 
+								draw_shell(data)
 								download = True
+								break
+							elif "er" in data:
 								break
 							else:
 								if data != "":
 									data_t.append(data)
+									draw_shell(len(data_t))
 								data = list()
-
-					if time()-begin_time > 10:
+					if time()-begin_time > 5:
+						draw_shell("Time out")
 						break
+					sleep(0.001)
+
 				if not download:
 					draw_shell("Error downloading")
 				else :	
@@ -315,19 +388,40 @@ def serial_Arduino(commande=''):
 					curses.echo()
 					curses.curs_set(1)
 					screen.nodelay(0)
+					file_name = str()
 					draw_shell("Name file ? :")
 					file_name = screen.getstr((maxY- height_shell_min)+1, 37, 20)
-					draw_shell("Create a new file : %s | %s Points" %(file_name,len(data_t)))
+					
+					if file_name == str():
+						if "itinary" in commande:
+							for i in range(1,10000000):	
+								file_name = "itinary_%s"%i
+								if not path.exists(file_location+file_name+".csv"):
+									break
+						elif "WAYPOINT" in commande:
+							for i in range(1,10000000):	
+								file_name = "WAYPOINT_%s"%i
+								if not path.exists(file_location+file_name+".csv"):
+									break
+					
+					while path.exists(file_location+file_name+".csv"):
+						draw_shell("File already exist")
+						draw_shell("Name file ? :")
+						file_name = screen.getstr((maxY- height_shell_min)+1, 37, 20)
+
 					screen.refresh()
 					#Create file 
 					newfile = csv.writer(open("%s%s.csv"%(file_location, file_name), "wb"))
 					newfile.writerow(["nbsat","hdop","lat","long","bat","time"])
 					
+										
 					for i in range(len(data_t)):
-						data = data_t[i].split(":")
+						data = data_t[i].split()[0:]
 						newfile.writerow(data)
+					
+					draw_shell("Create a new file : %s | %s Points" %(file_name,len(data_t)))
 
-		elif "rm" in commande:
+		elif "rem" in commande:
 			if not arduino.isOpen():
 				connection_arduino = False 
 				serial_Arduino()
