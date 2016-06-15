@@ -43,7 +43,9 @@ mountpoint =  mountpoint[:-1]
 print "Serial connexion to " + mountpoint
 print "initialization..." # Establish the connection on a specific port
 cont = False
+
 arduino = serial.Serial(mountpoint, 9600,timeout = 1)
+
 
 i=0
 while arduino.inWaiting()==0:

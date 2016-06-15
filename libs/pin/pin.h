@@ -1,6 +1,6 @@
 //Pin Configuration File 
 
-//GPS Pin
+//GPS Pins
 #define TX_GPS     2
 #define RX_GPS     3
 
@@ -13,10 +13,7 @@
 #define LCD_D7     9
 
 //SD Pin
-#define SD_SS      10
-#define SD_MOSI    11
-#define SD_MISO    12
-#define SD_SCK     13
+PROGMEM const char SD_SS=10;
 
 //Buttons Pin
 #define BP0        16
@@ -24,4 +21,7 @@
 #define BPEN       17
 
 //Others
-#define pinBat       0
+PROGMEM const int pinBat=0;
+
+void writeWP2File(String name, String wpName,float dataGPS[]);
+void readFile(String name);
