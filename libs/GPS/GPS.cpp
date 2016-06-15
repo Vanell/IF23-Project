@@ -35,7 +35,7 @@ void get_data_GPS(float data_GPS[])
 	float flat, flon;
 	unsigned long fix_age, time,fix_age_date;
 	//unsigned long chars = 0;
-	unsigned short sentences = 0, failed = 0;
+	//unsigned short sentences = 0, failed = 0;
 	unsigned long start = millis();
 	int year;
 	byte month, day, hour, minute, second, hundredths;
