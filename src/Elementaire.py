@@ -1,3 +1,5 @@
+#Home made
+from calcule import *
 
 # Standard librairies
 import curses
@@ -6,6 +8,8 @@ from os import popen, path	,makedirs, listdir
 import datetime
 import serial
 import csv
+import gpxpy
+import gpxpy.gpx
 
 #Arduino
 arduino = serial.Serial()
@@ -15,6 +19,7 @@ connection_arduino = False
 
 #Calcule
 files = list()
+files_gpx = list()
 file_location = "data/"
 
 #Interface variable
@@ -40,6 +45,7 @@ txt_menu =	[[2,"Connect",curses.A_NORMAL],
 			[2,"Exit",curses.A_NORMAL]]
 
 txt_files = [0,"Files",curses.A_UNDERLINE]
+txt_files_gpx = [0,"GPX Files",curses.A_UNDERLINE]
 
 txt_connect = [[0,"Connection on :",curses.A_UNDERLINE],
 				[2,"",curses.A_NORMAL],]
@@ -49,8 +55,7 @@ maxY = dims[0]
 maxX = dims[1]
 
 width_menu_min = 23
-width_file_arduino_min = 30
-width_bot_min = 60
+width_gpx_min = 30
 
 height_menu_min = len(txt_menu)+1
 height_shell_min = 10
@@ -81,6 +86,7 @@ def interface():
 	draw_connect()
 	draw_files()
 	draw_shell()
+	draw_files_gpx()
 
 	#Draw txt name prog & version
 	screen.addstr(0,txt_titre[0],txt_titre[1],txt_titre[2])
@@ -116,7 +122,11 @@ def interface():
 		interface()
 	elif selection_menu == 1 : #Download file
 		if connection_arduino :
-			serial_Arduino("sen:itinary.txt")
+			txt_file_dw = ["itinary","waypoint"]
+			select = pad_generator("Type of file",txt_file_dw,True)
+			if not "BACK" in select:
+				serial_Arduino("sen:%s.txt"%select)
+				
 		else :
 			draw_shell("Not connect")
 		interface()
@@ -130,53 +140,55 @@ def interface():
 		draw_shell("Select a file")
 		calcule()
 		interface()		
-	elif selection_menu == 4: #History shell
-		history()
+	elif selection_menu == 4: #export to gpx
+		# history()
+		# draw_shell("Sorry not implement yet")
+		export_gpx()
 		interface()		
 	elif txt_menu[selection_menu][1] == "Exit": 
 		quit()
 
-def history():
-	screen.clear()
-	curses.noecho()
-	curses.curs_set(0)
+# def history():
+# 	screen.clear()
+# 	curses.noecho()
+# 	curses.curs_set(0)
 
 
-	screen.addstr(0,0,"q : quit | UP : previous | DOWN : next",curses.A_BOLD)
-	hor_line = ''.join(['-']*(maxX))
-	screen.addstr(1,0,hor_line)
+# 	screen.addstr(0,0,"q : quit | UP : previous | DOWN : next",curses.A_BOLD)
+# 	hor_line = ''.join(['-']*(maxX))
+# 	screen.addstr(1,0,hor_line)
 
-	selection= -1
-	option_menu = 0
-	change = True
-	while selection < 0:
-		screen.nodelay(1)
+# 	selection= -1
+# 	option_menu = 0
+# 	change = True
+# 	while selection < 0:
+# 		screen.nodelay(1)
 
-		if change:
-			blank = [" "]*(maxX)
-			blank = ''.join(blank)
-			for i in range(len(interface_shell)-1,-1,-1):
-				j = len(interface_shell)-1-i
-				if j == (maxY-2): 
-					break
-				screen.addstr( j+1 ,24,blank)#Blank
-				tmp = datetime.datetime.fromtimestamp(interface_shell[i][0])#Parse time
-				screen.addstr( j+1 ,
-								0,
-								"[%s] : %s" %(tmp.strftime('%d-%m-%Y %H:%M:%S'),interface_shell[i][1]))#Write
-			screen.refresh()
-			change = False
+# 		if change:
+# 			blank = [" "]*(maxX)
+# 			blank = ''.join(blank)
+# 			for i in range(len(interface_shell)-1,-1,-1):
+# 				j = len(interface_shell)-1-i
+# 				if j == (maxY-2): 
+# 					break
+# 				screen.addstr( j+1 ,24,blank)#Blank
+# 				tmp = datetime.datetime.fromtimestamp(interface_shell[i][0])#Parse time
+# 				screen.addstr( j+1 ,
+# 								0,
+# 								"[%s] : %s" %(tmp.strftime('%d-%m-%Y %H:%M:%S'),interface_shell[i][1]))#Write
+# 			screen.refresh()
+# 			change = False
 
-		action = screen.getch()
+# 		action = screen.getch()
 
-		if action == curses.KEY_UP:
-			option_menu = (option_menu - 1)%len(txt_menu)
-			change = True
-		elif action == curses.KEY_DOWN:
-			option_menu = (option_menu + 1) %len(txt_menu)
-			change = True
-		elif action == ord('q'):
-			selection = option_menu
+# 		if action == curses.KEY_UP:
+# 			option_menu = (option_menu - 1)%len(txt_menu)
+# 			change = True
+# 		elif action == curses.KEY_DOWN:
+# 			option_menu = (option_menu + 1) %len(txt_menu)
+# 			change = True
+# 		elif action == ord('q'):
+# 			selection = option_menu
 
 def calcule():
 	if files != list():
@@ -210,42 +222,162 @@ def calcule():
 			draw_shell("File select : %s"%select_file)
 
 			txt_file_okay = ["YES","NO"]
-			
-			pad_file_okay = curses.newpad(len(txt_file_okay)+3, 30)
-			pad_file_okay.addstr(1,int(30/2-len("Launch calcule")/2),"Launch calcule",curses.A_UNDERLINE)
-			pad_file_okay.border()
-			y = int(maxY/2 - len(txt_file_okay)/2)-1
-			x = int(maxX/2 - 30/2)
+			select = pad_generator("Launch calcule",txt_file_okay)
 
-
-			option_file_okay = 0
-			selection_file_okay = -1
-
-			while selection_file_okay < 0:
-				pad_file_okay.nodelay(1)
-
-				#Menu
-				graphics = [0]*len(txt_file_okay)
-				graphics[option_file_okay] = curses.A_REVERSE
-
-				for z in range(len(txt_file_okay)):
-					pad_file_okay.addstr(z+2,int(30/2-len(txt_file_okay[z])/2),txt_file_okay[z],graphics[z])
+			if "YES" in select:
+				name,ext = select_file.split(".")
 				
-				action = screen.getch()
-				if action == curses.KEY_UP:
-					option_file_okay = (option_file_okay - 1)%len(txt_file_okay)
-				elif action == curses.KEY_DOWN:
-					option_file_okay = (option_file_okay + 1) %len(txt_file_okay)
-				elif action == ord('\n'):
-					selection_file_okay = option_file_okay
+				if not path.exists("data/%s"%name):
+					makedirs("data/%s"%name)
+				else : 
+				
+					txt_file_data = ["NEW SET","REWRITE"]
+					select = pad_generator("Rewrite data",txt_file_data,True)
 
-				pad_file_okay.refresh(0,0,y,x, 50,100)
-
-			if "YES" in txt_file_okay[selection_file_okay]:
-				draw_shell("Calcul launched")
+					if "NEW" in select:
+						for i in range(1,10000):							
+							if not path.exists("data/%s_%s"%(name,i)):
+								makedirs("data/%s_%s"%(name,i))
+								file_location_data = "data/%s_%s"%(name,i)
+								break
+						draw_shell("New set data in : %s"%file_location_data)
+						launch_calc(file_location_data,select_file)
+					elif "REW" in  select:
+						file_location_data = "data/%s"%name
+						launch_calc(file_location_data,select_file)
 
 	else : 
 		draw_shell("No file for calcul")
+
+def launch_calc(folder,filename):
+	draw_shell("Calcul launched")
+	data_in_processing = processing_data("data/%s"%filename)
+	draw_shell("Number of data : %s" %data_in_processing.next())
+	data_calc,average,variance,ecart,sat,dop,cov = data_in_processing.next()
+	draw_shell("Data computed")
+	export_data("%s/data_calc"%folder ,data_calc)
+	export_over("%s/average"%folder ,average)
+	export_over("%s/variance"%folder ,variance)
+	export_over("%s/cov"%folder ,cov)
+	export_over("%s/dop"%folder ,dop)
+	export_over("%s/ecart"%folder ,ecart)
+	draw_shell("Data exported")
+	graph(variance, ecart,sat,folder)
+	draw_shell("Graph generated")
+
+def export_gpx():
+	if files != list():
+		draw_shell("Select file")
+
+		selection_file = -1
+		option_file = 0
+		files.append("BACK")
+
+		while selection_file < 0:
+			screen.nodelay(1)
+
+			#Menu
+			graphics = [0]*len(files)
+			graphics[option_file] = curses.A_REVERSE
+
+			for i in range(len(files)):
+				screen.addstr(i+1, width_menu_min + txt_files[0] + 2,files[i],graphics[i])	
+			screen.refresh()
+			action = screen.getch()
+
+			if action == curses.KEY_UP:
+				option_file = (option_file - 1)%len(files)
+			elif action == curses.KEY_DOWN:
+				option_file = (option_file + 1) %len(files)
+			elif action == ord('\n'):
+				selection_file = option_file
+		
+		file_to_export = files[selection_file]
+		if not "BACK" in file_to_export and ("itinary" in file_to_export or "waypoint" in file_to_export ):
+			name,ext = file_to_export.split(".")
+			
+			if "itinary" in file_to_export:
+				if  path.exists("data/%s.gpx"%name):
+					txt_files_gpx = ["NEW SET","REWRITE"]					
+					select = pad_generator("GPX file already exist",txt_files_gpx,True)
+					
+					if "NEW" in select:
+						draw_shell()
+						for i in range(1,10000):							
+							if not path.exists("data/%s_%s.gpx"%(name,i)):
+								file_location_data = "data/%s_%s"%(name,i)
+								break
+					else:
+						file_location_data = "data/%s"%name
+				else:
+					file_location_data = "data/%s"%name
+				
+				draw_shell("New GPX data in : %s.gpx"%file_location_data)
+
+				gpx = gpxpy.gpx.GPX()
+				gpx_track = gpxpy.gpx.GPXTrack()
+				gpx.tracks.append(gpx_track)
+				gpx_segment = gpxpy.gpx.GPXTrackSegment()
+				gpx_track.segments.append(gpx_segment)
+				
+				data = list()
+				file = csv.reader(open("data/%s"%file_to_export,"rb"))
+				
+				for rows in file:
+					gpx_segment.points.append(gpxpy.gpx.GPXTrackPoint(float(rows[0]),float(rows[1]), elevation=float(rows[11])))
+				
+				createGPXFile(file_location_data,gpx)
+
+			elif "waypoint" in file_to_export:
+				if  path.exists("data/%s.gpx"%name):
+					txt_files_gpx = ["NEW SET","REWRITE"]					
+					select = pad_generator("GPX file already exist",txt_files_gpx,True)
+					
+					if "NEW" in select:
+						draw_shell()
+						for i in range(1,10000):							
+							if not path.exists("data/%s_%s.gpx"%(name,i)):
+								file_location_data = "data/%s_%s"%(name,i)
+								break
+					else:
+						file_location_data = "data/%s"%name
+				else:
+					file_location_data = "data/%s"%name
+				
+				draw_shell("New GPX data in : %s.gpx"%file_location_data)
+
+				gpx = gpxpy.gpx.GPX()
+				data = list()
+				file = csv.reader(open("data/%s"%file_to_export,"rb"))
+
+				for rows in file:
+					d =  int(float(rows[5]))
+					mo = int(float(rows[6]))
+					y =  int(float(rows[7]))
+					h =  int(float(rows[8]))
+					m =  int(float(rows[9]))
+					s =  int(float(rows[10]))
+					writeWaypoint(gpx,"%s-%s-%s %s:%s:%s"%(d,mo,y,h,m,s),float(rows[0],float(rows[1])))
+
+				createGPXFile(file_location_data,gpx)
+			else:
+				draw_shell("Error selection file to export")
+		else:
+				draw_shell("Error selection file to export")
+	else : 
+		draw_shell("No file for calcul")
+
+def createGPXFile(name,gpx):
+	file = open(name+'.gpx','w')
+	file.write(gpx.to_xml())
+	file.close()
+
+def writeWaypoint(gpx,name,lat,lon):
+	gpx_waypoint = gpxpy.gpx.GPXWaypoint()
+	gpx_waypoint.name = name
+	gpx_waypoint.latitude=lat
+	gpx_waypoint.longitude =lon
+	gpx.waypoints.append(gpx_waypoint)
 
 
 ##Arduino function
@@ -266,39 +398,10 @@ def list_tty():
 	if len(possible_mountpoint) <=0:
 		possible_mountpoint.append("no found point")
 
-	possible_mountpoint.append("BACK")
+	select = pad_generator("Mount point",possible_mountpoint,True)
 
-	pad_list_tty = curses.newpad(len(possible_mountpoint)+3, 30)
-	pad_list_tty.addstr(1,int(30/2-len("Mount point")/2),"Mount point",curses.A_UNDERLINE)
-	pad_list_tty.border()
-	y = int(maxY/2 - len(possible_mountpoint)/2)-1
-	x = int(maxX/2 - 30/2)
-
-	option_menu = 0
-	selection_menu = -1
-
-	while selection_menu < 0:
-		pad_list_tty.nodelay(1)
-
-		#Menu
-		graphics = [0]*len(possible_mountpoint)
-		graphics[option_menu] = curses.A_REVERSE
-
-		for z in range(len(possible_mountpoint)):
-			pad_list_tty.addstr(z+2,int(30/2-len(possible_mountpoint[z])/2),possible_mountpoint[z],graphics[z])
-		
-		action = screen.getch()
-		if action == curses.KEY_UP:
-			option_menu = (option_menu - 1)%len(possible_mountpoint)
-		elif action == curses.KEY_DOWN:
-			option_menu = (option_menu + 1) %len(possible_mountpoint)
-		elif action == ord('\n'):
-			selection_menu = option_menu
-
-		pad_list_tty.refresh(0,0,y,x, 50,100)
-	# Selection Menu
-	if ( "dev"  in possible_mountpoint[selection_menu] ): 
-		port_connect = possible_mountpoint[selection_menu]
+	if ( "dev"  in select ): 
+		port_connect = select
 		draw_shell("Port for connection :%s"%port_connect)
 		serial_Arduino()
 
@@ -398,9 +501,9 @@ def serial_Arduino(commande=''):
 								file_name = "itinary_%s"%i
 								if not path.exists(file_location+file_name+".csv"):
 									break
-						elif "WAYPOINT" in commande:
+						elif "waypoint" in commande:
 							for i in range(1,10000000):	
-								file_name = "WAYPOINT_%s"%i
+								file_name = "waypoint_%s"%i
 								if not path.exists(file_location+file_name+".csv"):
 									break
 					
@@ -412,9 +515,7 @@ def serial_Arduino(commande=''):
 					screen.refresh()
 					#Create file 
 					newfile = csv.writer(open("%s%s.csv"%(file_location, file_name), "wb"))
-					newfile.writerow(["nbsat","hdop","lat","long","bat","time"])
-					
-										
+															
 					for i in range(len(data_t)):
 						data = data_t[i].split()[0:]
 						newfile.writerow(data)
@@ -446,6 +547,41 @@ def serial_Arduino(commande=''):
 ##GPX function
 
 ##Draw function
+def pad_generator(title,list_elmt,btn_back=False):
+	if btn_back:
+		list_elmt.append("BACK")
+	
+	pad = curses.newpad(len(list_elmt)+3, 30)
+	pad.addstr(1,int(30/2-len(title)/2),title,curses.A_UNDERLINE)
+	pad.border()
+	y = int(maxY/2 - len(list_elmt)/2)-1
+	x = int(maxX/2 - 30/2)
+
+
+	option = 0
+	selection = -1
+
+	while selection < 0:
+		pad.nodelay(1)
+
+		#Menu
+		graphics = [0]*len(list_elmt)
+		graphics[option] = curses.A_REVERSE
+
+		for z in range(len(list_elmt)):
+			pad.addstr(z+2,int(30/2-len(list_elmt[z])/2),list_elmt[z],graphics[z])
+		
+		action = screen.getch()
+		if action == curses.KEY_UP:
+			option = (option - 1)%len(list_elmt)
+		elif action == curses.KEY_DOWN:
+			option = (option + 1) %len(list_elmt)
+		elif action == ord('\n'):
+			selection = option
+
+		pad.refresh(0,0,y,x, 50,100)
+	return list_elmt[selection]
+
 def draw_limit_gui():
 	#Vertical line menu
 	for i in range(maxY - height_shell_min):
@@ -453,7 +589,7 @@ def draw_limit_gui():
 	
 	#Vertical market data
 	for i in range(maxY - height_shell_min):
-		screen.addstr(i, (width_menu_min + width_file_arduino_min) ,'|')
+		screen.addstr(i, (width_menu_min + width_gpx_min) ,'|')
 		
 	#Line horzontale menu
 	hor_line_left = ['-']*(width_menu_min)
@@ -489,6 +625,26 @@ def draw_files():
 		files = temp_files
 		for i in range(len(files)):
 			screen.addstr(i+1, width_menu_min + txt_files[0] + 2,files[i],curses.A_NORMAL)		
+
+def draw_files_gpx():
+	global files_gpx
+
+	screen.addstr(0, width_menu_min + width_gpx_min + txt_files_gpx[0] + 1,txt_files_gpx[1],txt_files_gpx[2])
+	
+	if not path.exists(file_location):
+		makedirs(file_location)
+	else :
+		files_gpx = listdir(file_location)
+	if files_gpx == list():
+		screen.addstr(1, width_menu_min + width_gpx_min + txt_files_gpx[0] + 2,"No file",curses.A_NORMAL)
+	else:
+		temp_files = list()
+		for i in range(len(files_gpx)):
+			if files_gpx[i].endswith(".gpx"):
+				temp_files.append(files_gpx[i])
+		files_gpx = temp_files
+		for i in range(len(files_gpx)):
+			screen.addstr(i+1, width_menu_min +width_gpx_min+ txt_files_gpx[0] + 2,files_gpx[i],curses.A_NORMAL)	
 
 def draw_shell(data=''):
 	global interface_shell
