@@ -72,7 +72,7 @@ def begin_screen():
 	screen.addstr(int(maxY/2)+1,int(maxX/2-len("I. NIKIFOROV")/2),"I. NIKIFOROV")
 	
 	screen.refresh()
-	# sleep(1)
+	sleep(0.5)
 
 def interface():
 	
