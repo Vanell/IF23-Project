@@ -121,13 +121,14 @@ def processing_data(file_location):
 	file = csv.reader(open(file_location,"rb"))
 	
 	for rows in file:
-		for i in range(len(rows)):
-			if int(rows[10]) == 0:
-				rows[10] = randint(116,130)
+		# for i in range(len(rows)):
+			# if int(rows[10]) == 0:
+			# 	rows[10] = randint(116,130)
 		data.append(rows)
 	# data = data[1:]
 
-	longi_data(data)
+	# longi_data(data)
+	print len(data)
 	pt_work = work_point(data)
 
 	data_calc = list() # (degre,global,local)
@@ -136,7 +137,7 @@ def processing_data(file_location):
 		data_calc_pt = dict()
 		data_calc_pt["long"] = float(data[i][1])
 		data_calc_pt["lat"] = float(data[i][0])
-		data_calc_pt["alt"] = float(data[i][10])
+		data_calc_pt["alt"] = float(data[i][11])
 		pt_glob  = lat2cart( float(data[i][1]),float(data[i][0]),float(data[i][10]))
 		data_calc_pt["xglob"] = pt_glob[0]
 		data_calc_pt["yglob"] = pt_glob[1]
@@ -145,12 +146,13 @@ def processing_data(file_location):
 		data_calc_pt["xloc"] = pt_loc[0][0]
 		data_calc_pt["yloc"] = pt_loc[1][0]
 		data_calc_pt["zloc"] = pt_loc[2][0]
-		d = int(data[0][4])
-		mo = int(data[0][5])
-		y = int(data[0][6])
-		h = int(data[0][7])
-		m = int(data[0][8])
-		s = int(data[0][9])
+		data_calc_pt["age"] = float(data[0][4])
+		d =  int(float(data[i][5]))
+		mo = int(float(data[i][6]))
+		y =  int(float(data[i][7]))
+		h =  int(float(data[i][8]))
+		m =  int(float(data[i][9]))
+		s =  int(float(data[i][10]))
 		data_calc_pt["time"] = int(datetime.datetime.strptime('%s-%s-%s %s:%s:%s'%(y,mo,d,h,m,s), '%Y-%m-%d %H:%M:%S').strftime("%s"))
 		data_calc_pt["sat"] = float(data[i][2])
 		data_calc_pt["hdop"] = float(data[i][3])
@@ -176,6 +178,7 @@ def processing_data(file_location):
 	average["lambert93_x"] = 0
 	average["lambert93_y"] = 0
 	average["lambert93_z"] = 0
+	average["age"] = 0
 
 	#Average 
 	for i in range(len(data_calc)):
@@ -187,6 +190,7 @@ def processing_data(file_location):
 		average["lambert93_x"] += data_calc_pt["lambert93_xloc"]
 		average["lambert93_y"] += data_calc_pt["lambert93_yloc"]
 		average["lambert93_z"] += data_calc_pt["lambert93_zloc"]
+		average["age"] += data_calc_pt["age"]
 
 	average["x"] = average["x"]/len(data_calc)
 	average["y"] = average["y"]/len(data_calc)
@@ -196,6 +200,7 @@ def processing_data(file_location):
 	average["lambert93_x"] = average["lambert93_x"] /len(data_calc) 
 	average["lambert93_y"] = average["lambert93_y"] /len(data_calc)
 	average["lambert93_z"] = average["lambert93_z"] /len(data_calc)
+	average["age"] = average["age"] /len(data_calc)
 
 	# print average
 	
@@ -208,6 +213,7 @@ def processing_data(file_location):
 	variance["lambert93_x"] = 0
 	variance["lambert93_y"] = 0
 	variance["lambert93_z"] = 0
+	variance["age"] = 0
 
 	for i in range(len(data_calc)):
 		variance["x"] += (data_calc[i]["xloc"] - average["x"] )**2
@@ -216,12 +222,14 @@ def processing_data(file_location):
 		variance["lambert93_x"] += (data_calc_pt["lambert93_xloc"] - average["lambert93_x"])**2
 		variance["lambert93_y"] += (data_calc_pt["lambert93_yloc"] - average["lambert93_y"])**2
 		variance["lambert93_z"] += (data_calc_pt["lambert93_zloc"] - average["lambert93_z"])**2
+		variance["age"] += (data_calc_pt["age"] - average["age"])**2
 	variance["x"] = variance["x"]/len(data_calc)
 	variance["y"] = variance["y"]/len(data_calc)
 	variance["z"] = variance["z"]/len(data_calc)
 	variance["lambert93_x"] = variance["lambert93_x"]/len(data_calc)
 	variance["lambert93_y"] = variance["lambert93_y"]/len(data_calc)
 	variance["lambert93_z"] = variance["lambert93_z"]/len(data_calc)
+	variance["age"] = variance["age"]/len(data_calc)
 
 	# print variance
 
@@ -233,6 +241,7 @@ def processing_data(file_location):
 	ecart["lambert93_x"] = sqrt(variance["lambert93_x"])
 	ecart["lambert93_y"] = sqrt(variance["lambert93_y"])
 	ecart["lambert93_z"] = sqrt(variance["lambert93_z"])
+	ecart["age"] = sqrt(variance["age"])
 
 	# print ecart
 
@@ -489,14 +498,14 @@ def export_over(filename,data):
 		writer.writerow([key, value])
 
 
-locations_data = "data/itinary_3/"
-source_file_name = "data/itinary_3.csv"
+locations_data = "data/itinary_4/"
+source_file_name = "data/itinary_4.csv"
 
 data_calc,average,variance,ecart,sat,dop,cov = processing_data(source_file_name)
 graph(variance, ecart,sat)
-export_data("data/itinary_3/data_calc",data_calc)
-export_over("data/itinary_3/average",average)
-export_over("data/itinary_3/variance",variance)
-export_over("data/itinary_3/cov",cov)
-export_over("data/itinary_3/dop",dop)
-export_over("data/itinary_3/ecart",ecart)
+export_data("data/itinary_4/data_calc",data_calc)
+export_over("data/itinary_4/average",average)
+export_over("data/itinary_4/variance",variance)
+export_over("data/itinary_4/cov",cov)
+export_over("data/itinary_4/dop",dop)
+export_over("data/itinary_4/ecart",ecart)
