@@ -9,23 +9,8 @@ Bounce debouncerBPEN = Bounce(BPEN,5);
 Bounce debouncerBP0 = Bounce(BP0,5);
 Bounce debouncerBP1 = Bounce(BP1,5);
 
-//Content of dataGPS:
-// 0 NBSAT
-// 1 HDOP
-// 2 LATITUDE
-// 3 LONGITUDE
-// 4 AGE
-// 5 YEAR
-// 6 MONTH
-// 7 DAY
-// 8 HOURS
-// 9 MINUTES
-// 10 SECONDS
-// 11 ALTITUDE
-// 12 SPEED
 
-
-////FUNCTION////
+////FUNCTIONS////
 
 float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
 {
@@ -214,7 +199,7 @@ void MainMenuDisplay(float data_GPS[])
 		switch(pos_menu[1])
 		{
 			case 1 : 
-				//Launch functuion take point
+				//Launch function take point
 				lcd.print(F("Point"));
 				lcd.setCursor(0,1);
 				lcd.print(F("Took !"));
