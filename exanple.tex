@@ -1,0 +1,83 @@
+\documentclass[11pt]{article}
+
+%Package
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{ulem} %barrer du texte
+\usepackage{cancel}% barrer dans une expression math (\cancel{})
+\usepackage{pgf,tikz}
+\usepackage{mathrsfs}
+\usepackage{multirow}
+%\usepackage{gensymb}
+\usepackage{caption}
+\usepackage{eurosym}% pour le symbole €
+
+
+
+\usetikzlibrary{shapes.geometric, arrows}
+\definecolor{qqqqff}{rgb}{0.,0.,1.}
+%Configuration
+\renewcommand*\contentsname{Sommaire}
+\graphicspath{ {images/} }
+%\renewcommand{\thesection}{\Roman{section}}
+%\renewcommand{\thesubsection}{\Alph{subsection}}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+\renewcommand{\lstlistingname}{Script}
+
+\title{TITLE}
+\author{AUTHOR}
+\date{DATE}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{AUTHOR}
+\lhead{SHORT TITLE}
+\rfoot{Page \thepage}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\thispagestyle{empty}
+\tableofcontents{}
+\newpage
+
+\setcounter{page}{1}
+
+	% Content of documents
+
+\end{document}
