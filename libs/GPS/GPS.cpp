@@ -47,23 +47,6 @@ void get_data_GPS(float data_GPS[])
 	    if (gps.encode(c)) 
 	      newData = true;
 	}
-	
-	//gps.stats(&chars, &sentences, &failed);
-
-	//DEBUG
-	// Serial.print(" CHARS=");
-	// Serial.println(chars);
-	// Serial.print(" SENTENCES=");
-	// Serial.print(sentences);
-	// Serial.print(" CSUM ERR=");
-	// Serial.println(failed);
-	
-	// if (chars == 0){
-	// 	Serial.println("NocharGPS");
-	// 	newData = false;
-	// }
-
-	
   
 
 	if (newData){
@@ -118,7 +101,7 @@ void get_data_GPS(float data_GPS[])
 		{
 			data_GPS[5] = (float)day;//day
 			data_GPS[6] = (float)month;//month
-			data_GPS[7] = year;//year
+			data_GPS[7] = (year-2000);//year
 			data_GPS[8] = (float)hour;//dhour
 			data_GPS[9] = (float)minute;//minute
 			data_GPS[10] = (float)second;//seconde
