@@ -1,0 +1,5 @@
+\beamer@endinputifotherversion {3.33pt}
+\beamer@sectionintoc {1}{Fonctionalit\IeC {\'e} du GPS}{2}{0}{1}
+\beamer@sectionintoc {2}{Les Mesures}{5}{0}{2}
+\beamer@sectionintoc {3}{Conclusion}{13}{0}{3}
+\beamer@sectionintoc {4}{Question ?}{14}{0}{4}

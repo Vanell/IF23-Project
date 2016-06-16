@@ -36,7 +36,7 @@ txt_menu =	[[2,"Connect",curses.A_NORMAL],
 			[2,"Download File",curses.A_NORMAL],
 			[2,"Delete Files",curses.A_NORMAL],
 			[2,"Calcul",curses.A_NORMAL],
-			[2,"History Shell",curses.A_NORMAL],
+			[2,"Export to GPX",curses.A_NORMAL],
 			[2,"Exit",curses.A_NORMAL]]
 
 txt_files = [0,"Files",curses.A_UNDERLINE]
@@ -482,6 +482,11 @@ def draw_files():
 	if files == list():
 		screen.addstr(1, width_menu_min + txt_files[0] + 2,"No file",curses.A_NORMAL)
 	else:
+		temp_files = list()
+		for i in range(len(files)):
+			if files[i].endswith(".csv"):
+				temp_files.append(files[i])
+		files = temp_files
 		for i in range(len(files)):
 			screen.addstr(i+1, width_menu_min + txt_files[0] + 2,files[i],curses.A_NORMAL)		
 
