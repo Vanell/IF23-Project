@@ -132,8 +132,12 @@ def interface():
 		interface()
 	elif selection_menu == 2: #Delete file
 		if connection_arduino :
-			serial_Arduino("rem")
-		else:
+			txt_file_dw = ["itinary","waypoint"]
+			select = pad_generator("Type of file",txt_file_dw,True)
+			if not "BACK" in select:
+				serial_Arduino("rem:%s.txt"%select)
+				
+		else :
 			draw_shell("Not connect")
 		interface()
 	elif selection_menu == 3: #Calcule
@@ -450,77 +454,77 @@ def serial_Arduino(commande=''):
 			if not arduino.isOpen():
 				connection_arduino = False 
 				serial_Arduino()
-			else :
-				draw_shell("Download in progress")
-				data_t = list()
-				data = list()
-				arduino.flushInput()
-				arduino.write(commande)
-				sleep(3)
 				
-				while arduino.isOpen():
-					if arduino.inWaiting() > 0:
-						data.append((arduino.read()).decode("utf-8"))
-						begin_time = time()
-					if data != list():
-						if data[-1] == "\r" or data[-1] == "\n":
-							data = ''.join(data[:-1])
-							if "ok" in data: 
-								draw_shell(data)
-								download = True
-								break
-							elif "er" in data:
-								break
-							else:
-								if data != "":
-									data_t.append(data)
-									draw_shell(len(data_t))
-								data = list()
-					if time()-begin_time > 5:
-						draw_shell("Time out")
-						break
-					sleep(0.001)
+			draw_shell("Download in progress")
+			data_t = list()
+			data = list()
+			arduino.flushInput()
+			arduino.write(commande)
+			sleep(3)
+			
+			while arduino.isOpen():
+				if arduino.inWaiting() > 0:
+					data.append((arduino.read()).decode("utf-8"))
+					begin_time = time()
+				if data != list():
+					if data[-1] == "\r" or data[-1] == "\n":
+						data = ''.join(data[:-1])
+						if "ok" in data: 
+							draw_shell(data)
+							download = True
+							break
+						elif "er" in data:
+							break
+						else:
+							if data != "":
+								data_t.append(data)
+								draw_shell(len(data_t))
+							data = list()
+				if time()-begin_time > 5:
+					draw_shell("Time out")
+					break
+				sleep(0.001)
 
-				if not download:
-					draw_shell("Error downloading")
-				else :	
-					draw_shell("Download complete")
-					
-					#Give a name for the file datas
+			if not download:
+				draw_shell("Error downloading")
+			else :	
+				draw_shell("Download complete")
+				
+				#Give a name for the file datas
 
-					curses.echo()
-					curses.curs_set(1)
-					screen.nodelay(0)
-					file_name = str()
+				curses.echo()
+				curses.curs_set(1)
+				screen.nodelay(0)
+				file_name = str()
+				draw_shell("Name file ? :")
+				file_name = screen.getstr((maxY- height_shell_min)+1, 37, 20)
+				
+				if file_name == str():
+					if "itinary" in commande:
+						for i in range(1,10000000):	
+							file_name = "itinary_%s"%i
+							if not path.exists(file_location+file_name+".csv"):
+								break
+					elif "waypoint" in commande:
+						for i in range(1,10000000):	
+							file_name = "waypoint_%s"%i
+							if not path.exists(file_location+file_name+".csv"):
+								break
+				
+				while path.exists(file_location+file_name+".csv"):
+					draw_shell("File already exist")
 					draw_shell("Name file ? :")
 					file_name = screen.getstr((maxY- height_shell_min)+1, 37, 20)
-					
-					if file_name == str():
-						if "itinary" in commande:
-							for i in range(1,10000000):	
-								file_name = "itinary_%s"%i
-								if not path.exists(file_location+file_name+".csv"):
-									break
-						elif "waypoint" in commande:
-							for i in range(1,10000000):	
-								file_name = "waypoint_%s"%i
-								if not path.exists(file_location+file_name+".csv"):
-									break
-					
-					while path.exists(file_location+file_name+".csv"):
-						draw_shell("File already exist")
-						draw_shell("Name file ? :")
-						file_name = screen.getstr((maxY- height_shell_min)+1, 37, 20)
 
-					screen.refresh()
-					#Create file 
-					newfile = csv.writer(open("%s%s.csv"%(file_location, file_name), "wb"))
-															
-					for i in range(len(data_t)):
-						data = data_t[i].split()[0:]
-						newfile.writerow(data)
-					
-					draw_shell("Create a new file : %s | %s Points" %(file_name,len(data_t)))
+				screen.refresh()
+				#Create file 
+				newfile = csv.writer(open("%s%s.csv"%(file_location, file_name), "wb"))
+														
+				for i in range(len(data_t)):
+					data = data_t[i].split()[0:]
+					newfile.writerow(data)
+				
+				draw_shell("Create a new file : %s | %s Points" %(file_name,len(data_t)))
 
 		elif "rem" in commande:
 			if not arduino.isOpen():
