@@ -121,14 +121,14 @@ def processing_data(file_location):
 	file = csv.reader(open(file_location,"rb"))
 	
 	for rows in file:
-		# for i in range(len(rows)):
-			# if int(rows[10]) == 0:
-			# 	rows[10] = randint(116,130)
+		for i in range(len(rows)):
+			if int(float(rows[11])) == 0:
+				rows[11] = randint(116,130)
 		data.append(rows)
 	# data = data[1:]
 
 	# longi_data(data)
-	print len(data)
+	yield len(data)
 	pt_work = work_point(data)
 
 	data_calc = list() # (degre,global,local)
@@ -351,9 +351,9 @@ def processing_data(file_location):
 			sat[i][1]["ecart"]["z"] = sqrt(sat[i][1]["variance"]["z"])
 			sat[i][1]["ecart"]["hdop"] = sqrt(sat[i][1]["variance"]["hdop"])
 
-	return data_calc, average,variance,ecart,sat,dop,cov
+	yield data_calc, average,variance,ecart,sat,dop,cov
 
-def graph(variance, ecart,sat):
+def graph(variance, ecart,sat,locations_data):
 	#Graphique
 	#Average
 
@@ -373,7 +373,7 @@ def graph(variance, ecart,sat):
 	ax.set_xticklabels(('x', 'y', 'z'))
 
 	ax.legend((rects1[0], rects2[0]), ('Variance', 'Ecart'))
-	plt.savefig('%svar_ecart.png'%locations_data)
+	plt.savefig('%s/var_ecart.png'%locations_data)
 	# plt.show()
 
 	N = 3
@@ -392,7 +392,7 @@ def graph(variance, ecart,sat):
 	ax.set_xticklabels(('x', 'y', 'z'))
 
 	ax.legend((rects1[0], rects2[0]), ('Variance', 'Ecart'))
-	plt.savefig('%svar_ecart_lambert.png'%locations_data)
+	plt.savefig('%s/var_ecart_lambert.png'%locations_data)
 	# plt.show()
 
 	N = 11
@@ -422,7 +422,7 @@ def graph(variance, ecart,sat):
 	ax.set_xticklabels(('0','1','2','3', '4', '5', '6', '7', '8', '9', '10'))
 
 	ax.legend((rects1[0], rects2[0]), ('Variance x', 'Ecart x'))
-	plt.savefig('%svar_ecart_sat_x.png'%locations_data)
+	plt.savefig('%s/var_ecart_sat_x.png'%locations_data)
 	# plt.show()
 
 	N = 11
@@ -452,7 +452,7 @@ def graph(variance, ecart,sat):
 	ax.set_xticklabels(('0','1','2','3', '4', '5', '6', '7', '8', '9', '10'))
 
 	ax.legend((rects1[0], rects2[0]), ('Variance y', 'Ecart y'))
-	plt.savefig('%svar_ecart_sat_y.png'%locations_data)
+	plt.savefig('%s/var_ecart_sat_y.png'%locations_data)
 	# plt.show()
 
 	N = 11
@@ -482,7 +482,7 @@ def graph(variance, ecart,sat):
 	ax.set_xticklabels(('0','1','2','3', '4', '5', '6', '7', '8', '9', '10'))
 
 	ax.legend((rects1[0], rects2[0]), ('Variance z', 'Ecart z'))
-	plt.savefig('%svar_ecart_sat_z.png'%locations_data)
+	plt.savefig('%s/var_ecart_sat_z.png'%locations_data)
 	# plt.show()
 
 def export_data(filename,data):
@@ -496,16 +496,3 @@ def export_over(filename,data):
 	writer = csv.writer(open('%s.csv'%filename, 'wb'))
 	for key, value in data.items():
 		writer.writerow([key, value])
-
-
-locations_data = "data/itinary_4/"
-source_file_name = "data/itinary_4.csv"
-
-data_calc,average,variance,ecart,sat,dop,cov = processing_data(source_file_name)
-graph(variance, ecart,sat)
-export_data("data/itinary_4/data_calc",data_calc)
-export_over("data/itinary_4/average",average)
-export_over("data/itinary_4/variance",variance)
-export_over("data/itinary_4/cov",cov)
-export_over("data/itinary_4/dop",dop)
-export_over("data/itinary_4/ecart",ecart)

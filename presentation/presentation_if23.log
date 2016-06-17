@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2015/dev/Debian) (preloaded format=pdflatex 2016.5.13)  16 JUN 2016 20:55
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2015/dev/Debian) (preloaded format=pdflatex 2016.5.13)  17 JUN 2016 00:11
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1283,165 +1283,185 @@ Package pdftex.def Info: elementaire_gps.png used on input line 84.
 ] [6
 
 ]
-<../src/data/itinary_1/var_ecart.png, id=70, 578.16pt x 433.62pt>
-File: ../src/data/itinary_1/var_ecart.png Graphic file (type png)
+<../src/data/itinary_1/var_ecart1.png, id=70, 578.16pt x 433.62pt>
+File: ../src/data/itinary_1/var_ecart1.png Graphic file (type png)
 
-<use ../src/data/itinary_1/var_ecart.png>
-Package pdftex.def Info: ../src/data/itinary_1/var_ecart.png used on input line
- 141.
+<use ../src/data/itinary_1/var_ecart1.png>
+Package pdftex.def Info: ../src/data/itinary_1/var_ecart1.png used on input lin
+e 141.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
 
-<../src/data/itinary_2/var_ecart.png, id=71, 578.16pt x 433.62pt>
-File: ../src/data/itinary_2/var_ecart.png Graphic file (type png)
+<../src/data/itinary_2/var_ecart2.png, id=71, 578.16pt x 433.62pt>
+File: ../src/data/itinary_2/var_ecart2.png Graphic file (type png)
 
-<use ../src/data/itinary_2/var_ecart.png>
-Package pdftex.def Info: ../src/data/itinary_2/var_ecart.png used on input line
- 141.
+<use ../src/data/itinary_2/var_ecart2.png>
+Package pdftex.def Info: ../src/data/itinary_2/var_ecart2.png used on input lin
+e 141.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
 
-<../src/data/itinary_3/var_ecart.png, id=72, 578.16pt x 433.62pt>
-File: ../src/data/itinary_3/var_ecart.png Graphic file (type png)
+<../src/data/itinary_3/var_ecart3.png, id=72, 578.16pt x 433.62pt>
+File: ../src/data/itinary_3/var_ecart3.png Graphic file (type png)
 
-<use ../src/data/itinary_3/var_ecart.png>
-Package pdftex.def Info: ../src/data/itinary_3/var_ecart.png used on input line
- 141.
+<use ../src/data/itinary_3/var_ecart3.png>
+Package pdftex.def Info: ../src/data/itinary_3/var_ecart3.png used on input lin
+e 141.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
 
-<../src/data/itinary_4/var_ecart.png, id=73, 578.16pt x 433.62pt>
-File: ../src/data/itinary_4/var_ecart.png Graphic file (type png)
+<../src/data/itinary_4/var_ecart4.png, id=73, 578.16pt x 433.62pt>
+File: ../src/data/itinary_4/var_ecart4.png Graphic file (type png)
 
-<use ../src/data/itinary_4/var_ecart.png>
-Package pdftex.def Info: ../src/data/itinary_4/var_ecart.png used on input line
- 141.
+<use ../src/data/itinary_4/var_ecart4.png>
+Package pdftex.def Info: ../src/data/itinary_4/var_ecart4.png used on input lin
+e 141.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
  [7
 
- <../src/data/itinary_1/var_ecart.png> <../src/data/itinary_2/var_ecart.png> <.
-./src/data/itinary_3/var_ecart.png> <../src/data/itinary_4/var_ecart.png>]
-<../src/data/itinary_1/var_ecart_sat_x.png, id=84, 578.16pt x 433.62pt>
-File: ../src/data/itinary_1/var_ecart_sat_x.png Graphic file (type png)
+ <../src/data/itinary_1/var_ecart1.png> <../src/data/itinary_2/var_ecart2.png> 
+<../src/data/itinary_3/var_ecart3.png> <../src/data/itinary_4/var_ecart4.png>]
+<../src/data/itinary_1/var_ecart_sat_x1.png, id=84, 578.16pt x 433.62pt>
+File: ../src/data/itinary_1/var_ecart_sat_x1.png Graphic file (type png)
 
-<use ../src/data/itinary_1/var_ecart_sat_x.png>
-Package pdftex.def Info: ../src/data/itinary_1/var_ecart_sat_x.png used on inpu
-t line 162.
+<use ../src/data/itinary_1/var_ecart_sat_x1.png>
+Package pdftex.def Info: ../src/data/itinary_1/var_ecart_sat_x1.png used on inp
+ut line 162.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
-File: ../src/data/itinary_1/var_ecart_sat_x.png Graphic file (type png)
 
-<use ../src/data/itinary_1/var_ecart_sat_x.png>
-Package pdftex.def Info: ../src/data/itinary_1/var_ecart_sat_x.png used on inpu
-t line 162.
+<../src/data/itinary_1/var_ecart_sat_y1.png, id=85, 578.16pt x 433.62pt>
+File: ../src/data/itinary_1/var_ecart_sat_y1.png Graphic file (type png)
+
+<use ../src/data/itinary_1/var_ecart_sat_y1.png>
+Package pdftex.def Info: ../src/data/itinary_1/var_ecart_sat_y1.png used on inp
+ut line 162.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
-File: ../src/data/itinary_1/var_ecart_sat_x.png Graphic file (type png)
 
-<use ../src/data/itinary_1/var_ecart_sat_x.png>
-Package pdftex.def Info: ../src/data/itinary_1/var_ecart_sat_x.png used on inpu
-t line 162.
+<../src/data/itinary_1/var_ecart_sat_z1.png, id=86, 578.16pt x 433.62pt>
+File: ../src/data/itinary_1/var_ecart_sat_z1.png Graphic file (type png)
+
+<use ../src/data/itinary_1/var_ecart_sat_z1.png>
+Package pdftex.def Info: ../src/data/itinary_1/var_ecart_sat_z1.png used on inp
+ut line 162.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
  [8
 
- <../src/data/itinary_1/var_ecart_sat_x.png>]
-<../src/data/itinary_2/var_ecart_sat_x.png, id=91, 578.16pt x 433.62pt>
-File: ../src/data/itinary_2/var_ecart_sat_x.png Graphic file (type png)
+ <../src/data/itinary_1/var_ecart_sat_x1.png> <../src/data/itinary_1/var_ecart_
+sat_y1.png> <../src/data/itinary_1/var_ecart_sat_z1.png>]
+<../src/data/itinary_2/var_ecart_sat_x2.png, id=96, 578.16pt x 433.62pt>
+File: ../src/data/itinary_2/var_ecart_sat_x2.png Graphic file (type png)
 
-<use ../src/data/itinary_2/var_ecart_sat_x.png>
-Package pdftex.def Info: ../src/data/itinary_2/var_ecart_sat_x.png used on inpu
-t line 182.
+<use ../src/data/itinary_2/var_ecart_sat_x2.png>
+Package pdftex.def Info: ../src/data/itinary_2/var_ecart_sat_x2.png used on inp
+ut line 182.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
-File: ../src/data/itinary_2/var_ecart_sat_x.png Graphic file (type png)
 
-<use ../src/data/itinary_2/var_ecart_sat_x.png>
-Package pdftex.def Info: ../src/data/itinary_2/var_ecart_sat_x.png used on inpu
-t line 182.
+<../src/data/itinary_2/var_ecart_sat_y2.png, id=97, 578.16pt x 433.62pt>
+File: ../src/data/itinary_2/var_ecart_sat_y2.png Graphic file (type png)
+
+<use ../src/data/itinary_2/var_ecart_sat_y2.png>
+Package pdftex.def Info: ../src/data/itinary_2/var_ecart_sat_y2.png used on inp
+ut line 182.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
-File: ../src/data/itinary_2/var_ecart_sat_x.png Graphic file (type png)
 
-<use ../src/data/itinary_2/var_ecart_sat_x.png>
-Package pdftex.def Info: ../src/data/itinary_2/var_ecart_sat_x.png used on inpu
-t line 182.
+<../src/data/itinary_2/var_ecart_sat_z2.png, id=98, 578.16pt x 433.62pt>
+File: ../src/data/itinary_2/var_ecart_sat_z2.png Graphic file (type png)
+
+<use ../src/data/itinary_2/var_ecart_sat_z2.png>
+Package pdftex.def Info: ../src/data/itinary_2/var_ecart_sat_z2.png used on inp
+ut line 182.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
  [9
 
- <../src/data/itinary_2/var_ecart_sat_x.png>]
-<../src/data/itinary_3/var_ecart_sat_x.png, id=98, 578.16pt x 433.62pt>
-File: ../src/data/itinary_3/var_ecart_sat_x.png Graphic file (type png)
+ <../src/data/itinary_2/var_ecart_sat_x2.png> <../src/data/itinary_2/var_ecart_
+sat_y2.png> <../src/data/itinary_2/var_ecart_sat_z2.png>]
+<../src/data/itinary_3/var_ecart_sat_x3.png, id=107, 578.16pt x 433.62pt>
+File: ../src/data/itinary_3/var_ecart_sat_x3.png Graphic file (type png)
 
-<use ../src/data/itinary_3/var_ecart_sat_x.png>
-Package pdftex.def Info: ../src/data/itinary_3/var_ecart_sat_x.png used on inpu
-t line 202.
+<use ../src/data/itinary_3/var_ecart_sat_x3.png>
+Package pdftex.def Info: ../src/data/itinary_3/var_ecart_sat_x3.png used on inp
+ut line 202.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
-File: ../src/data/itinary_3/var_ecart_sat_x.png Graphic file (type png)
 
-<use ../src/data/itinary_3/var_ecart_sat_x.png>
-Package pdftex.def Info: ../src/data/itinary_3/var_ecart_sat_x.png used on inpu
-t line 202.
+<../src/data/itinary_3/var_ecart_sat_y3.png, id=108, 578.16pt x 433.62pt>
+File: ../src/data/itinary_3/var_ecart_sat_y3.png Graphic file (type png)
+
+<use ../src/data/itinary_3/var_ecart_sat_y3.png>
+Package pdftex.def Info: ../src/data/itinary_3/var_ecart_sat_y3.png used on inp
+ut line 202.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
-File: ../src/data/itinary_3/var_ecart_sat_x.png Graphic file (type png)
 
-<use ../src/data/itinary_3/var_ecart_sat_x.png>
-Package pdftex.def Info: ../src/data/itinary_3/var_ecart_sat_x.png used on inpu
-t line 202.
+<../src/data/itinary_3/var_ecart_sat_z3.png, id=109, 578.16pt x 433.62pt>
+File: ../src/data/itinary_3/var_ecart_sat_z3.png Graphic file (type png)
+
+<use ../src/data/itinary_3/var_ecart_sat_z3.png>
+Package pdftex.def Info: ../src/data/itinary_3/var_ecart_sat_z3.png used on inp
+ut line 202.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
  [10
 
- <../src/data/itinary_3/var_ecart_sat_x.png>]
-<../src/data/itinary_4/var_ecart_sat_x.png, id=105, 578.16pt x 433.62pt>
-File: ../src/data/itinary_4/var_ecart_sat_x.png Graphic file (type png)
+ <../src/data/itinary_3/var_ecart_sat_x3.png> <../src/data/itinary_3/var_ecart_
+sat_y3.png> <../src/data/itinary_3/var_ecart_sat_z3.png>]
+<../src/data/itinary_4/var_ecart_sat_x4.png, id=118, 578.16pt x 433.62pt>
+File: ../src/data/itinary_4/var_ecart_sat_x4.png Graphic file (type png)
 
-<use ../src/data/itinary_4/var_ecart_sat_x.png>
-Package pdftex.def Info: ../src/data/itinary_4/var_ecart_sat_x.png used on inpu
-t line 222.
+<use ../src/data/itinary_4/var_ecart_sat_x4.png>
+Package pdftex.def Info: ../src/data/itinary_4/var_ecart_sat_x4.png used on inp
+ut line 222.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
-File: ../src/data/itinary_4/var_ecart_sat_x.png Graphic file (type png)
 
-<use ../src/data/itinary_4/var_ecart_sat_x.png>
-Package pdftex.def Info: ../src/data/itinary_4/var_ecart_sat_x.png used on inpu
-t line 222.
+<../src/data/itinary_4/var_ecart_sat_y4.png, id=119, 578.16pt x 433.62pt>
+File: ../src/data/itinary_4/var_ecart_sat_y4.png Graphic file (type png)
+
+<use ../src/data/itinary_4/var_ecart_sat_y4.png>
+Package pdftex.def Info: ../src/data/itinary_4/var_ecart_sat_y4.png used on inp
+ut line 222.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
-File: ../src/data/itinary_4/var_ecart_sat_x.png Graphic file (type png)
 
-<use ../src/data/itinary_4/var_ecart_sat_x.png>
-Package pdftex.def Info: ../src/data/itinary_4/var_ecart_sat_x.png used on inpu
-t line 222.
+<../src/data/itinary_4/var_ecart_sat_z4.png, id=120, 578.16pt x 433.62pt>
+File: ../src/data/itinary_4/var_ecart_sat_z4.png Graphic file (type png)
+
+<use ../src/data/itinary_4/var_ecart_sat_z4.png>
+Package pdftex.def Info: ../src/data/itinary_4/var_ecart_sat_z4.png used on inp
+ut line 222.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
  [11
 
- <../src/data/itinary_4/var_ecart_sat_x.png>]
-<../src/data/itinary_1/var_ecart_lambert.png, id=112, 578.16pt x 433.62pt>
-File: ../src/data/itinary_1/var_ecart_lambert.png Graphic file (type png)
+ <../src/data/itinary_4/var_ecart_sat_x4.png> <../src/data/itinary_4/var_ecart_
+sat_y4.png> <../src/data/itinary_4/var_ecart_sat_z4.png>]
+<../src/data/itinary_1/var_ecart_lambert1.png, id=129, 578.16pt x 433.62pt>
+File: ../src/data/itinary_1/var_ecart_lambert1.png Graphic file (type png)
 
-<use ../src/data/itinary_1/var_ecart_lambert.png>
-Package pdftex.def Info: ../src/data/itinary_1/var_ecart_lambert.png used on in
-put line 249.
+<use ../src/data/itinary_1/var_ecart_lambert1.png>
+Package pdftex.def Info: ../src/data/itinary_1/var_ecart_lambert1.png used on i
+nput line 249.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
 
-<../src/data/itinary_2/var_ecart_lambert.png, id=113, 578.16pt x 433.62pt>
-File: ../src/data/itinary_2/var_ecart_lambert.png Graphic file (type png)
+<../src/data/itinary_2/var_ecart_lambert2.png, id=130, 578.16pt x 433.62pt>
+File: ../src/data/itinary_2/var_ecart_lambert2.png Graphic file (type png)
 
-<use ../src/data/itinary_2/var_ecart_lambert.png>
-Package pdftex.def Info: ../src/data/itinary_2/var_ecart_lambert.png used on in
-put line 249.
+<use ../src/data/itinary_2/var_ecart_lambert2.png>
+Package pdftex.def Info: ../src/data/itinary_2/var_ecart_lambert2.png used on i
+nput line 249.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
 
-<../src/data/itinary_3/var_ecart_lambert.png, id=114, 578.16pt x 433.62pt>
-File: ../src/data/itinary_3/var_ecart_lambert.png Graphic file (type png)
+<../src/data/itinary_3/var_ecart_lambert3.png, id=131, 578.16pt x 433.62pt>
+File: ../src/data/itinary_3/var_ecart_lambert3.png Graphic file (type png)
 
-<use ../src/data/itinary_3/var_ecart_lambert.png>
-Package pdftex.def Info: ../src/data/itinary_3/var_ecart_lambert.png used on in
-put line 249.
+<use ../src/data/itinary_3/var_ecart_lambert3.png>
+Package pdftex.def Info: ../src/data/itinary_3/var_ecart_lambert3.png used on i
+nput line 249.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
 
-<../src/data/itinary_4/var_ecart_lambert.png, id=115, 578.16pt x 433.62pt>
-File: ../src/data/itinary_4/var_ecart_lambert.png Graphic file (type png)
+<../src/data/itinary_4/var_ecart_lambert4.png, id=132, 578.16pt x 433.62pt>
+File: ../src/data/itinary_4/var_ecart_lambert4.png Graphic file (type png)
 
-<use ../src/data/itinary_4/var_ecart_lambert.png>
-Package pdftex.def Info: ../src/data/itinary_4/var_ecart_lambert.png used on in
-put line 249.
+<use ../src/data/itinary_4/var_ecart_lambert4.png>
+Package pdftex.def Info: ../src/data/itinary_4/var_ecart_lambert4.png used on i
+nput line 249.
 (pdftex.def)             Requested size: 125.46921pt x 94.09985pt.
  [12
 
- <../src/data/itinary_1/var_ecart_lambert.png> <../src/data/itinary_2/var_ecart
-_lambert.png> <../src/data/itinary_3/var_ecart_lambert.png> <../src/data/itinar
-y_4/var_ecart_lambert.png>] [13
+ <../src/data/itinary_1/var_ecart_lambert1.png> <../src/data/itinary_2/var_ecar
+t_lambert2.png> <../src/data/itinary_3/var_ecart_lambert3.png> <../src/data/iti
+nary_4/var_ecart_lambert4.png>] [13
 
 ] [14
 
@@ -1475,10 +1495,10 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 253.
  ) 
 Here is how much of TeX's memory you used:
- 20402 strings out of 495020
- 405193 string characters out of 6181324
- 464428 words of memory out of 5000000
- 23101 multiletter control sequences out of 15000+600000
+ 20456 strings out of 495020
+ 407219 string characters out of 6181324
+ 464446 words of memory out of 5000000
+ 23138 multiletter control sequences out of 15000+600000
  9104 words of font info for 34 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  61i,13n,79p,1772b,682s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1486,12 +1506,13 @@ Here is how much of TeX's memory you used:
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share
 /texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/share/texliv
 e/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
+xmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/share/texlive/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
 Output written on /home/vanell/Documents/UTT/IF23/IF23-Project/presentation/pre
-sentation_if23.pdf (14 pages, 366950 bytes).
+sentation_if23.pdf (14 pages, 568043 bytes).
 PDF statistics:
- 166 PDF objects out of 1000 (max. 8388607)
- 111 compressed objects within 2 object streams
+ 186 PDF objects out of 1000 (max. 8388607)
+ 114 compressed objects within 2 object streams
  33 named destinations out of 1000 (max. 500000)
- 140 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 180 words of extra memory for PDF output out of 10000 (max. 10000000)
 
